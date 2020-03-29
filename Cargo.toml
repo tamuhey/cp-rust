@@ -1,0 +1,14 @@
+[package]
+name = "rust-lib"
+version = "0.1.0"
+authors = ["Yohei Tamura <tamuhey@gmail.com>"]
+edition = "2018"
+
+[lib]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+quickcheck = "^0.9.2"
+quickcheck_macros = "^0.9.1"
