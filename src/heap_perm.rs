@@ -1,3 +1,4 @@
+/// genarate permutation based on Heap's algorithm
 fn perm_part<T: Clone>(n: usize, v: &mut [T], all: &mut Vec<Vec<T>>) {
     if n == 1 {
         all.push(v.to_vec());

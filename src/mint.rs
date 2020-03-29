@@ -1,4 +1,4 @@
-pub mod min {
+pub mod mint {
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
     pub const MOD: usize = 1000_000_007;
 

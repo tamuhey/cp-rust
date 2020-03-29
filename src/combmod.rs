@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 pub mod combmod {
-    use super::mint::mint::*;
+    use super::super::mint::mint::*;
 
     pub fn get_factorials(n: usize) -> Vec<Mint<usize>> {
         let mut facts = vec![Mint(0); n];
@@ -21,14 +21,14 @@ pub mod combmod {
         invs
     }
 
-    fn gcd(a: usize, b: usize) -> usize {
+    pub fn gcd(a: usize, b: usize) -> usize {
         match b {
             0 => a,
             _ => gcd(b, a % b),
         }
     }
 
-    fn prime_factors(x: usize) -> Vec<usize> {
+    pub fn prime_factors(x: usize) -> Vec<usize> {
         let mut res = vec![];
         let mut y = x;
         let mut p = 2;
@@ -50,13 +50,13 @@ pub mod combmod {
         return res;
     }
 
-    struct CombMod {
+    pub struct CombMod {
         facts: Vec<Mint<usize>>,
         invs: Vec<Mint<usize>>,
     }
 
     impl CombMod {
-        fn new(n: usize) -> Self {
+        pub fn new(n: usize) -> Self {
             let facts = get_factorials(n);
             let invs = get_facinvs(n, &facts);
             CombMod {
@@ -64,7 +64,7 @@ pub mod combmod {
                 invs: invs,
             }
         }
-        fn get(&self, a: usize, b: usize) -> Mint<usize> {
+        pub fn get(&self, a: usize, b: usize) -> Mint<usize> {
             if a < b {
                 Mint(0)
             } else {
@@ -76,7 +76,7 @@ pub mod combmod {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::combmod::*;
 
     #[test]
     fn test_gcd() {
