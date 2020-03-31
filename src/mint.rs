@@ -1,4 +1,5 @@
 pub mod mint {
+    use std::fmt::Display;
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
     use std::str::FromStr;
     pub const MOD: usize = 1000_000_007;
@@ -25,11 +26,17 @@ pub mod mint {
         }
     }
 
+    impl<T: Display + Copy + PartialEq> Display for Mint<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", self.0)
+        }
+    }
+
     impl<T: FromStr + Copy + PartialEq> FromStr for Mint<T> {
         type Err = T::Err;
         fn from_str(s: &str) -> Result<Self, Self::Err> {
             let v = T::from_str(s)?;
-            Ok(Self(v))
+            Ok(Mint(v))
         }
     }
 
@@ -284,5 +291,10 @@ mod test {
         let mut mx = Mint(x);
         mx /= Mint(y);
         (mx * y).0 == x % MOD
+    }
+
+    #[test]
+    fn test_display() {
+        assert_eq!(format!("{}", Mint(10)), "10");
     }
 }
