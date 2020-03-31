@@ -1,9 +1,10 @@
 pub mod mint {
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+    use std::str::FromStr;
     pub const MOD: usize = 1000_000_007;
 
-    #[derive(Clone, Copy)]
-    pub struct Mint<T: Copy>(pub T);
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct Mint<T: Copy + PartialEq>(pub T);
 
     impl Mint<usize> {
         pub fn pow(self, exp: usize) -> Self {
@@ -21,6 +22,14 @@ pub mod mint {
         }
         pub fn inv(self) -> Self {
             self.pow(MOD - 2)
+        }
+    }
+
+    impl<T: FromStr + Copy + PartialEq> FromStr for Mint<T> {
+        type Err = T::Err;
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let v = T::from_str(s)?;
+            Ok(Self(v))
         }
     }
 
@@ -126,6 +135,16 @@ pub mod mint {
 #[cfg(test)]
 mod test {
     use super::mint::*;
+    use std::str::FromStr;
+
+    #[test]
+    fn test_fromstr() {
+        let s = "12";
+        assert_eq!(Mint::<usize>::from_str(s).unwrap().0, 12);
+        let s = "O";
+        Mint::<usize>::from_str(s).unwrap_err();
+    }
+
     #[quickcheck]
     fn pow(x: usize, y: u32) -> bool {
         match x.checked_pow(y) {
