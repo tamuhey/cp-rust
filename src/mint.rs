@@ -27,7 +27,7 @@ pub mod mint {
     }
 
     impl<T: Display + Copy + PartialEq> Display for Mint<T> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
             write!(f, "{}", self.0)
         }
     }
@@ -105,6 +105,12 @@ pub mod mint {
         type Output = Self;
         fn mul(self, rhs: Self) -> Self::Output {
             self * rhs.0
+        }
+    }
+
+    impl MulAssign<usize> for Mint<usize> {
+        fn mul_assign(&mut self, rhs: usize) {
+            *self = *self * rhs;
         }
     }
 
