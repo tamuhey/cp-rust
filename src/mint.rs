@@ -4,8 +4,8 @@ pub mod mint {
     use std::str::FromStr;
     pub const MOD: usize = 1000_000_007;
 
-    #[derive(Clone, Copy, PartialEq, Debug)]
-    pub struct Mint<T: Copy + PartialEq>(pub T);
+    #[derive(Clone, Copy, PartialEq, Debug, Default)]
+    pub struct Mint<T>(pub T);
 
     impl Mint<usize> {
         pub fn pow(self, exp: usize) -> Self {
