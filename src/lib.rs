@@ -5,6 +5,7 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 
 pub mod bellman_ford;
+pub mod binary_tree;
 pub mod bit;
 pub mod comb;
 pub mod combmod;
