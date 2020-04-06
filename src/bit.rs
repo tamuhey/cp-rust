@@ -6,7 +6,7 @@ struct BIT<T> {
 
 impl<T: std::ops::Add<Output = T> + Clone> BIT<T> {
     fn new(n: usize, unit: T) -> Self {
-        let mut dat = vec![unit.clone(); n];
+        let dat = vec![unit.clone(); n];
         BIT {
             dat: dat,
             unit: unit.clone(),

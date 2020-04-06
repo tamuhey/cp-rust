@@ -13,22 +13,12 @@ pub enum BinaryTree<T> {
 }
 use BinaryTree::*;
 
-#[derive(Debug, Eq, PartialEq)]
-enum Balanced {
-    LeftLeft,
-    Left,
-    Equal,
-    Right,
-    RightRight,
-}
-use Balanced::*;
-
 #[derive(Debug)]
 pub struct Node<T> {
     pub value: T,
     pub left: BinaryTree<T>,
     pub right: BinaryTree<T>,
-    balanced: Balanced,
+    balance_factor: i8,
 }
 
 impl<T> Default for BinaryTree<T> {
@@ -39,18 +29,19 @@ impl<T> Default for BinaryTree<T> {
 
 impl<T> BinaryTree<T>
 where
-    T: Ord,
+    T: Ord + std::fmt::Debug,
 {
     pub fn add(&mut self, value: T) -> (bool, bool) {
         // returns: (inserted, deepened)
         let ret = match *self {
             Empty => {
-                *self = NonEmpty(Box::new(Node {
+                let node = Node {
                     value: value,
                     left: Empty,
                     right: Empty,
-                    balanced: Balanced::Equal,
-                }));
+                    balance_factor: 0,
+                };
+                *self = NonEmpty(Box::new(node));
                 (true, true)
             }
             NonEmpty(ref mut node) => match node.value.cmp(&value) {
@@ -58,21 +49,14 @@ where
                 Ordering::Less => {
                     let (inserted, deepened) = node.right.add(value);
                     if deepened {
-                        match node.balanced {
-                            Left => {
-                                node.balanced = Equal;
-                                (inserted, false)
-                            }
-                            Equal => {
-                                node.balanced = Right;
-                                (inserted, true)
-                            }
-                            Right => {
-                                node.balanced = RightRight;
-                                (inserted, false)
-                            }
+                        let ret = match node.balance_factor {
+                            -1 => (inserted, false),
+                            0 => (inserted, true),
+                            1 => (inserted, false),
                             _ => unreachable!(),
-                        }
+                        };
+                        node.balance_factor += 1;
+                        ret
                     } else {
                         (inserted, deepened)
                     }
@@ -80,21 +64,14 @@ where
                 Ordering::Greater => {
                     let (inserted, deepened) = node.left.add(value);
                     if deepened {
-                        match node.balanced {
-                            Left => {
-                                node.balanced = LeftLeft;
-                                (inserted, false)
-                            }
-                            Equal => {
-                                node.balanced = Left;
-                                (inserted, true)
-                            }
-                            Right => {
-                                node.balanced = Equal;
-                                (inserted, false)
-                            }
+                        let ret = match node.balance_factor {
+                            -1 => (inserted, false),
+                            0 => (inserted, true),
+                            1 => (inserted, false),
                             _ => unreachable!(),
-                        }
+                        };
+                        node.balance_factor -= 1;
+                        ret
                     } else {
                         (inserted, deepened)
                     }
@@ -108,37 +85,78 @@ where
     fn balance(&mut self) {
         match *self {
             Empty => (),
-            NonEmpty(ref mut node) => match node.balanced {
-                LeftLeft => {
-                    node.balanced = Equal;
-                    if node.left.node().unwrap().balanced == Right {
+            NonEmpty(ref mut node) => match node.balance_factor {
+                -2 => {
+                    let lf = node.left.node().unwrap().balance_factor;
+                    if lf == -1 || lf == 0 {
+                        let (a, b) = if lf == -1 { (0, 0) } else { (-1, 1) };
+                        self.rotate_right();
+                        self.node().unwrap().right.node().unwrap().balance_factor = a;
+                        self.node().unwrap().balance_factor = b;
+                    } else if lf == 1 {
+                        let (a, b) = match node
+                            .left
+                            .node()
+                            .unwrap()
+                            .right
+                            .node()
+                            .unwrap()
+                            .balance_factor
+                        {
+                            -1 => (1, 0),
+                            0 => (0, 0),
+                            1 => (0, -1),
+                            _ => unreachable!(),
+                        };
                         node.left.rotate_left();
+                        self.rotate_right();
+                        self.node().unwrap().right.node().unwrap().balance_factor = a;
+                        self.node().unwrap().left.node().unwrap().balance_factor = b;
+                        self.node().unwrap().balance_factor = 0;
+                    } else {
+                        unreachable!()
                     }
-                    self.rotate_right();
                 }
-                RightRight => {
-                    node.balanced = Equal;
-                    if node.right.node().unwrap().balanced == Left {
-                        node.left.rotate_right();
+                2 => {
+                    let lf = node.right.node().unwrap().balance_factor;
+                    if lf == 1 || lf == 0 {
+                        let (a, b) = if lf == 1 { (0, 0) } else { (1, -1) };
+                        self.rotate_left();
+                        self.node().unwrap().left.node().unwrap().balance_factor = a;
+                        self.node().unwrap().balance_factor = b;
+                    } else if lf == -1 {
+                        let (a, b) = match node
+                            .right
+                            .node()
+                            .unwrap()
+                            .left
+                            .node()
+                            .unwrap()
+                            .balance_factor
+                        {
+                            1 => (-1, 0),
+                            0 => (0, 0),
+                            -1 => (0, 1),
+                            _ => unreachable!(),
+                        };
+                        node.right.rotate_right();
+                        self.rotate_left();
+                        self.node().unwrap().left.node().unwrap().balance_factor = a;
+                        self.node().unwrap().right.node().unwrap().balance_factor = b;
+                        self.node().unwrap().balance_factor = 0;
+                    } else {
+                        unreachable!()
                     }
-                    self.rotate_left();
                 }
                 _ => (),
             },
         }
     }
 
-    fn node(&self) -> Option<&Node<T>> {
+    fn node(&mut self) -> Option<&mut Node<T>> {
         match *self {
             Empty => None,
-            NonEmpty(ref v) => Some(v),
-        }
-    }
-
-    fn value(&self) -> Option<&T> {
-        match *self {
-            Empty => None,
-            NonEmpty(ref v) => Some(&v.value),
+            NonEmpty(ref mut v) => Some(v),
         }
     }
 
@@ -173,11 +191,34 @@ where
         *right.left() = v;
         *self = right;
     }
+    #[cfg(test)]
+    fn value(&self) -> Option<&T> {
+        match *self {
+            Empty => None,
+            NonEmpty(ref v) => Some(&v.value),
+        }
+    }
 
+    #[cfg(test)]
     fn depth(&self) -> usize {
         match *self {
             Empty => 0,
             NonEmpty(ref v) => std::cmp::max(v.left.depth(), v.right.depth()) + 1,
+        }
+    }
+
+    #[cfg(test)]
+    fn print(&self, prefix: &str)
+    where
+        T: std::fmt::Debug,
+    {
+        match *self {
+            Empty => (),
+            NonEmpty(ref v) => {
+                println!("{} {:?} {:?}", prefix, v.value, v.balance_factor);
+                v.left.print(&(prefix.to_string() + "L"));
+                v.right.print(&(prefix.to_string() + "R"))
+            }
         }
     }
 }
@@ -241,15 +282,65 @@ mod test {
         assert_eq!(tree.right().value().unwrap(), &4);
     }
 
+    #[test]
+    fn test_balance_handmade3() {
+        let mut tree = Empty;
+        let v = vec![22, 28, 90, 36];
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+    }
+
+    #[test]
+    fn test_balance_handmade4() {
+        let mut tree = Empty;
+        let v = vec![0, 2, 1];
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+    }
+
+    #[test]
+    fn test_balance_handmade5() {
+        let mut tree = Empty;
+        let v = vec![96, 39, 67, 35, 77, 3, 16, 0];
+        let n = v.len();
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+        let h = tree.depth() as f64 - 1.;
+        let l = ((n + 1) as f64).log2() - 1.;
+        let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
+        assert!((l <= h) & (h < r));
+    }
+
+    #[test]
+    fn test_balance_handmade6() {
+        let mut tree = Empty;
+        let v = vec![21, 0, 3, 16, 66, 65, 32, 44, 63, 69];
+        let n = v.len();
+        for &vi in v.iter() {
+            println!("{}", vi);
+            tree.add(vi);
+            tree.print("");
+            println!("");
+        }
+        let h = tree.depth() as f64 - 1.;
+        let l = ((n + 1) as f64).log2() - 1.;
+        let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
+        assert!((l <= h) & (h < r));
+    }
+
     #[quickcheck]
-    fn test_balance_quick(v: Vec<usize>) {
+    fn test_balance_quick(v: std::collections::HashSet<usize>) -> bool {
         let n = v.len();
         let mut tree = Empty;
         for &vi in v.iter() {
             tree.add(vi);
         }
-        let h = tree.depth() as f64;
-        assert!(((n + 1) as f64).log2() - 1. <= h, "{:?}", v);
-        assert!(1.45 * ((n + 2) as f64).log2() - 1.32 > h, "{:?}", v);
+        let h = tree.depth() as f64 - 1.;
+        let l = ((n + 1) as f64).log2() - 1.;
+        let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
+        (l <= h) & (h < r)
     }
 }

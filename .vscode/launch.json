@@ -11,9 +11,10 @@
             "cargo": {
                 "args": [
                     "test",
+                    "balance_quick",
                     "--no-run",
                     "--lib",
-                    "--package=rust-lib"
+                    "--package=rust-lib",
                 ],
                 "filter": {
                     "name": "rust-lib",
