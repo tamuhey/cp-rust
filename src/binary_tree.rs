@@ -3,7 +3,7 @@
 extern crate quickcheck;
 use std::cmp::Ordering;
 use std::default::Default;
-use std::iter::Iterator;
+use std::iter::{FromIterator, Iterator};
 use std::mem;
 
 #[derive(Debug)]
@@ -195,6 +195,7 @@ where
         *right.left() = v;
         *self = right;
     }
+
     #[cfg(test)]
     fn value(&self) -> Option<&T> {
         match *self {
@@ -203,11 +204,17 @@ where
         }
     }
 
-    #[cfg(test)]
     fn depth(&self) -> usize {
         match *self {
             Empty => 0,
             NonEmpty(ref v) => std::cmp::max(v.left.depth(), v.right.depth()) + 1,
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        match *self {
+            Empty => 0,
+            NonEmpty(ref v) => 1 + v.left.len() + v.right.len(),
         }
     }
 
@@ -272,9 +279,20 @@ impl<T: Ord> IntoIterator for BinaryTree<T> {
     }
 }
 
+impl<T: Ord> FromIterator<T> for BinaryTree<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut tree = Empty;
+        for v in iter {
+            tree.insert(v);
+        }
+        tree
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
     fn rotate_right() {
@@ -307,86 +325,8 @@ mod test {
         assert_eq!(tree.left().right().value().unwrap(), &8);
     }
 
-    #[test]
-    fn balance_handmade() {
-        let mut tree = Empty;
-        tree.add(3);
-        tree.add(2);
-        tree.add(1);
-        assert_eq!(tree.depth(), 2);
-        assert_eq!(tree.value().unwrap(), &2);
-        assert_eq!(tree.left().value().unwrap(), &1);
-        assert_eq!(tree.right().value().unwrap(), &3);
-    }
-
-    #[test]
-    fn balance_handmade2() {
-        let mut tree = Empty;
-        tree.add(4);
-        tree.add(2);
-        tree.add(3);
-        assert_eq!(tree.depth(), 2);
-        assert_eq!(tree.value().unwrap(), &3);
-        assert_eq!(tree.left().value().unwrap(), &2);
-        assert_eq!(tree.right().value().unwrap(), &4);
-    }
-
-    #[test]
-    fn balance_handmade3() {
-        let mut tree = Empty;
-        let v = vec![22, 28, 90, 36];
-        for &vi in v.iter() {
-            tree.add(vi);
-        }
-    }
-
-    #[test]
-    fn balance_handmade4() {
-        let mut tree = Empty;
-        let v = vec![0, 2, 1];
-        for &vi in v.iter() {
-            tree.add(vi);
-        }
-    }
-
-    #[test]
-    fn balance_handmade5() {
-        let mut tree = Empty;
-        let v = vec![96, 39, 67, 35, 77, 3, 16, 0];
-        let n = v.len();
-        for &vi in v.iter() {
-            tree.add(vi);
-        }
-        let h = tree.depth() as f64 - 1.;
-        let l = ((n + 1) as f64).log2() - 1.;
-        let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
-        assert!((l <= h) & (h < r));
-    }
-
-    #[test]
-    fn balance_handmade6() {
-        let mut tree = Empty;
-        let v = vec![21, 0, 3, 16, 66, 65, 32, 44, 63, 69];
-        let n = v.len();
-        for &vi in v.iter() {
-            println!("{}", vi);
-            tree.add(vi);
-            tree.print("");
-            println!("");
-        }
-        let h = tree.depth() as f64 - 1.;
-        let l = ((n + 1) as f64).log2() - 1.;
-        let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
-        assert!((l <= h) & (h < r));
-    }
-
-    #[quickcheck]
-    fn balance_quick(v: std::collections::HashSet<usize>) -> bool {
-        let n = v.len();
-        let mut tree = Empty;
-        for &vi in v.iter() {
-            tree.add(vi);
-        }
+    fn check_height<T: Ord>(tree: BinaryTree<T>) -> bool {
+        let n = tree.len();
         let h = tree.depth() as f64 - 1.;
         let l = ((n + 1) as f64).log2() - 1.;
         let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
@@ -394,7 +334,25 @@ mod test {
     }
 
     #[quickcheck]
-    fn into_iter(v: std::collections::HashSet<usize>) -> bool {
+    fn len(v: HashSet<usize>) -> bool {
+        let mut tree = Empty;
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+        tree.len() == v.len()
+    }
+
+    #[quickcheck]
+    fn balance(v: HashSet<usize>) -> bool {
+        let mut tree = Empty;
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+        check_height(tree)
+    }
+
+    #[quickcheck]
+    fn into_iter(v: HashSet<usize>) -> bool {
         let mut v: Vec<_> = v.into_iter().collect();
         v.sort();
         let mut tree = Empty;
@@ -403,5 +361,27 @@ mod test {
         }
         let w: Vec<_> = tree.into_iter().collect();
         (0..v.len()).all(|i| v[i] == w[i])
+    }
+
+    #[quickcheck]
+    fn from_iter(v: HashSet<usize>) {
+        let n = v.len();
+        let w = v.clone();
+        let mut w: Vec<_> = w.into_iter().collect();
+        w.sort();
+        let tree: BinaryTree<_> = v.into_iter().collect();
+        assert_eq!(tree.len(), n);
+        for (i, a) in tree.into_iter().enumerate() {
+            assert_eq!(a, w[i]);
+        }
+    }
+
+    #[quickcheck]
+    fn duplicates(v: Vec<i64>) -> bool {
+        let tree = v.into_iter().collect::<BinaryTree<_>>();
+        let mut v: Vec<_> = tree.into_iter().collect();
+        let n = v.len();
+        v.dedup();
+        n == v.len()
     }
 }
