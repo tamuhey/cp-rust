@@ -196,14 +196,6 @@ where
         *self = right;
     }
 
-    #[cfg(test)]
-    fn value(&self) -> Option<&T> {
-        match *self {
-            Empty => None,
-            NonEmpty(ref v) => Some(&v.value),
-        }
-    }
-
     fn depth(&self) -> usize {
         match *self {
             Empty => 0,
@@ -215,6 +207,18 @@ where
         match *self {
             Empty => 0,
             NonEmpty(ref v) => 1 + v.left.len() + v.right.len(),
+        }
+    }
+
+    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
+        Iter::new(self)
+    }
+
+    #[cfg(test)]
+    fn value(&self) -> Option<&T> {
+        match *self {
+            Empty => None,
+            NonEmpty(ref v) => Some(&v.value),
         }
     }
 
@@ -234,21 +238,21 @@ where
     }
 }
 
-pub struct BinaryTreeIterator<T> {
+pub struct IntoIter<T> {
     stack: Vec<Box<Node<T>>>,
 }
 
-impl<T> BinaryTreeIterator<T> {
+impl<T> IntoIter<T> {
     pub fn new(tree: BinaryTree<T>) -> Self {
         let stack = match tree {
             Empty => vec![],
             NonEmpty(v) => vec![v],
         };
-        BinaryTreeIterator { stack: stack }
+        IntoIter { stack: stack }
     }
 }
 
-impl<T: Ord> Iterator for BinaryTreeIterator<T> {
+impl<T> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -271,11 +275,49 @@ impl<T: Ord> Iterator for BinaryTreeIterator<T> {
     }
 }
 
-impl<T: Ord> IntoIterator for BinaryTree<T> {
+impl<T> IntoIterator for BinaryTree<T> {
     type Item = T;
-    type IntoIter = BinaryTreeIterator<T>;
+    type IntoIter = IntoIter<T>;
     fn into_iter(self) -> Self::IntoIter {
-        BinaryTreeIterator::new(self)
+        IntoIter::new(self)
+    }
+}
+
+pub struct Iter<'a, T> {
+    stack: Vec<(&'a Node<T>, bool)>,
+}
+
+impl<'a, T> Iter<'a, T> {
+    pub fn new(tree: &'a BinaryTree<T>) -> Self {
+        let stack = match tree {
+            Empty => vec![],
+            NonEmpty(v) => vec![(v.as_ref(), false)],
+        };
+        Iter { stack: stack }
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            match self.stack.pop() {
+                None => return None,
+                Some((u, flag)) => {
+                    if flag {
+                        if let NonEmpty(ref right) = u.right {
+                            self.stack.push((right, false))
+                        }
+                        return Some(&u.value);
+                    } else {
+                        self.stack.push((u, true));
+                        if let NonEmpty(ref left) = u.left {
+                            self.stack.push((left, false))
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -361,6 +403,18 @@ mod test {
         }
         let w: Vec<_> = tree.into_iter().collect();
         (0..v.len()).all(|i| v[i] == w[i])
+    }
+
+    #[quickcheck]
+    fn iter(v: HashSet<usize>) -> bool {
+        let mut v: Vec<_> = v.into_iter().collect();
+        v.sort();
+        let mut tree = Empty;
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+        let w: Vec<_> = tree.iter().collect();
+        (0..v.len()).all(|i| v[i] == *w[i])
     }
 
     #[quickcheck]
