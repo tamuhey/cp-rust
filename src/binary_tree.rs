@@ -29,9 +29,13 @@ impl<T> Default for BinaryTree<T> {
 
 impl<T> BinaryTree<T>
 where
-    T: Ord + std::fmt::Debug,
+    T: Ord,
 {
-    pub fn add(&mut self, value: T) -> (bool, bool) {
+    pub fn insert(&mut self, value: T) -> bool {
+        self.add(value).0
+    }
+
+    fn add(&mut self, value: T) -> (bool, bool) {
         // returns: (inserted, deepened)
         let ret = match *self {
             Empty => {
@@ -223,12 +227,57 @@ where
     }
 }
 
+pub struct BinaryTreeIterator<T> {
+    stack: Vec<Box<Node<T>>>,
+}
+
+impl<T> BinaryTreeIterator<T> {
+    pub fn new(tree: BinaryTree<T>) -> Self {
+        let stack = match tree {
+            Empty => vec![],
+            NonEmpty(v) => vec![v],
+        };
+        BinaryTreeIterator { stack: stack }
+    }
+}
+
+impl<T: Ord> Iterator for BinaryTreeIterator<T> {
+    type Item = T;
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            match self.stack.pop() {
+                None => return None,
+                Some(mut u) => match mem::take(&mut u.left) {
+                    Empty => {
+                        if let NonEmpty(right) = u.right {
+                            self.stack.push(right);
+                        };
+                        return Some(u.value);
+                    }
+                    NonEmpty(left) => {
+                        self.stack.push(u);
+                        self.stack.push(left);
+                    }
+                },
+            }
+        }
+    }
+}
+
+impl<T: Ord> IntoIterator for BinaryTree<T> {
+    type Item = T;
+    type IntoIter = BinaryTreeIterator<T>;
+    fn into_iter(self) -> Self::IntoIter {
+        BinaryTreeIterator::new(self)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
-    fn test_rotate_right() {
+    fn rotate_right() {
         let mut tree = BinaryTree::Empty;
         tree.add(3usize);
         tree.add(4usize);
@@ -245,7 +294,7 @@ mod test {
     }
 
     #[test]
-    fn test_rotate_left() {
+    fn rotate_left() {
         let mut tree = BinaryTree::Empty;
         tree.add(3usize);
         tree.add(1usize);
@@ -259,7 +308,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade() {
+    fn balance_handmade() {
         let mut tree = Empty;
         tree.add(3);
         tree.add(2);
@@ -271,7 +320,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade2() {
+    fn balance_handmade2() {
         let mut tree = Empty;
         tree.add(4);
         tree.add(2);
@@ -283,7 +332,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade3() {
+    fn balance_handmade3() {
         let mut tree = Empty;
         let v = vec![22, 28, 90, 36];
         for &vi in v.iter() {
@@ -292,7 +341,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade4() {
+    fn balance_handmade4() {
         let mut tree = Empty;
         let v = vec![0, 2, 1];
         for &vi in v.iter() {
@@ -301,7 +350,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade5() {
+    fn balance_handmade5() {
         let mut tree = Empty;
         let v = vec![96, 39, 67, 35, 77, 3, 16, 0];
         let n = v.len();
@@ -315,7 +364,7 @@ mod test {
     }
 
     #[test]
-    fn test_balance_handmade6() {
+    fn balance_handmade6() {
         let mut tree = Empty;
         let v = vec![21, 0, 3, 16, 66, 65, 32, 44, 63, 69];
         let n = v.len();
@@ -332,7 +381,7 @@ mod test {
     }
 
     #[quickcheck]
-    fn test_balance_quick(v: std::collections::HashSet<usize>) -> bool {
+    fn balance_quick(v: std::collections::HashSet<usize>) -> bool {
         let n = v.len();
         let mut tree = Empty;
         for &vi in v.iter() {
@@ -342,5 +391,17 @@ mod test {
         let l = ((n + 1) as f64).log2() - 1.;
         let r = 1.45 * ((n + 2) as f64).log2() - 1.32;
         (l <= h) & (h < r)
+    }
+
+    #[quickcheck]
+    fn into_iter(v: std::collections::HashSet<usize>) -> bool {
+        let mut v: Vec<_> = v.into_iter().collect();
+        v.sort();
+        let mut tree = Empty;
+        for &vi in v.iter() {
+            tree.add(vi);
+        }
+        let w: Vec<_> = tree.into_iter().collect();
+        (0..v.len()).all(|i| v[i] == w[i])
     }
 }
