@@ -1,6 +1,7 @@
 /// Implementation of AVL tree
 #[cfg(test)]
 extern crate quickcheck;
+extern crate test;
 use std::borrow::Borrow;
 use std::cmp::Ordering;
 use std::cmp::Ordering::*;
@@ -247,21 +248,6 @@ where
             NonEmpty(ref v) => Some(&v.value),
         }
     }
-
-    #[cfg(test)]
-    fn print(&self, prefix: &str)
-    where
-        T: std::fmt::Debug,
-    {
-        match *self {
-            Empty => (),
-            NonEmpty(ref v) => {
-                println!("{} {:?} {:?}", prefix, v.value, v.balance_factor);
-                v.left.print(&(prefix.to_string() + "L"));
-                v.right.print(&(prefix.to_string() + "R"))
-            }
-        }
-    }
 }
 
 pub struct IntoIter<T> {
@@ -391,9 +377,10 @@ where
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
-    use std::collections::HashSet;
+    use std::collections::{BTreeSet, HashSet};
+    use test::Bencher;
 
     #[test]
     fn rotate_right() {
@@ -517,5 +504,59 @@ mod test {
         let ri = v.binary_search(&r).unwrap_or_else(|x| x);
         let w: Vec<_> = tree.range(Some(&l), Some(&r)).collect();
         (0..(ri - li)).all(|i| v[i + li] == *w[i])
+    }
+
+    const TESTSIZE: usize = 10000;
+
+    #[bench]
+    fn bench_add_binarytree_insert(b: &mut Bencher) {
+        b.iter(|| {
+            let mut tree = Empty;
+            for i in 0..TESTSIZE {
+                tree.insert(i);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_add_btree_insert(b: &mut Bencher) {
+        b.iter(|| {
+            let mut tree = BTreeSet::new();
+            for i in 0..TESTSIZE {
+                tree.insert(i);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_add_binarytree_iter(b: &mut Bencher) {
+        let mut tree: BinaryTree<_> = (0..TESTSIZE).collect();
+        b.iter(|| tree.iter());
+    }
+
+    #[bench]
+    fn bench_add_btree_iter(b: &mut Bencher) {
+        let mut tree: BTreeSet<_> = (0..TESTSIZE).collect();
+        b.iter(|| tree.iter());
+    }
+
+    #[bench]
+    fn bench_add_binarytree_index(b: &mut Bencher) {
+        let mut tree: BinaryTree<_> = (0..TESTSIZE).collect();
+        b.iter(|| {
+            for v in tree.iter() {
+                tree.get(v);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_add_btree_index(b: &mut Bencher) {
+        let mut tree: BTreeSet<_> = (0..TESTSIZE).collect();
+        b.iter(|| {
+            for v in tree.iter() {
+                tree.get(v);
+            }
+        });
     }
 }

@@ -1,3 +1,4 @@
+#![feature(test)]
 #[cfg(test)]
 extern crate quickcheck;
 #[cfg(test)]
