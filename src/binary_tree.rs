@@ -1,7 +1,9 @@
 /// Implementation of AVL tree
 #[cfg(test)]
 extern crate quickcheck;
+use std::borrow::Borrow;
 use std::cmp::Ordering;
+use std::cmp::Ordering::*;
 use std::default::Default;
 use std::iter::{FromIterator, Iterator};
 use std::mem;
@@ -214,6 +216,21 @@ where
         Iter::new(self)
     }
 
+    pub fn get<Q>(&self, value: &Q) -> Option<&T>
+    where
+        T: Borrow<Q>,
+        Q: ?Sized + Ord,
+    {
+        match *self {
+            Empty => None,
+            NonEmpty(ref node) => match value.cmp(node.value.borrow()) {
+                Less => node.left.get(value),
+                Equal => Some(&node.value),
+                Greater => node.right.get(value),
+            },
+        }
+    }
+
     #[cfg(test)]
     fn value(&self) -> Option<&T> {
         match *self {
@@ -424,5 +441,12 @@ mod test {
         let n = v.len();
         v.dedup();
         n == v.len()
+    }
+
+    #[quickcheck]
+    fn get(v: HashSet<usize>, indices: Vec<usize>) -> bool {
+        let w = v.clone();
+        let tree: BinaryTree<_> = v.into_iter().collect();
+        w.iter().all(|wi| tree.get(wi) != None) && indices.iter().all(|i| w.get(i) == tree.get(i))
     }
 }
