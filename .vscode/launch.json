@@ -11,7 +11,7 @@
             "cargo": {
                 "args": [
                     "test",
-                    "balance_quick",
+                    "rangeiter",
                     "--no-run",
                     "--lib",
                     "--package=rust-lib",

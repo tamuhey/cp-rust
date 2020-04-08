@@ -214,7 +214,15 @@ where
     }
 
     pub fn iter<'a>(&'a self) -> RangeIter<'a, T, &T> {
-        RangeIter::new(self, None, None)
+        self.range(None, None)
+    }
+
+    pub fn range<'a, 'b, K>(&'a self, l: Option<&'b K>, r: Option<&'b K>) -> RangeIter<'a, T, &'b K>
+    where
+        T: Borrow<K>,
+        K: ?Sized + Ord,
+    {
+        RangeIter::new(self, l, r)
     }
 
     pub fn get<Q>(&self, value: &Q) -> Option<&T>
@@ -497,5 +505,17 @@ mod test {
         w.iter().all(|wi| tree.get(wi) != None)
             && indices.iter().all(|i| w.get(i) == tree.get(i))
             && w.iter().all(|wi| tree[wi] == *wi)
+    }
+
+    #[quickcheck]
+    fn rangeiter(v: HashSet<usize>, l: usize, r: usize) -> bool {
+        let (l, r) = if l < r { (l, r) } else { (r, l) };
+        let mut v: Vec<_> = v.into_iter().collect();
+        v.sort();
+        let tree: BinaryTree<_> = v.iter().map(|&x| x).collect();
+        let li = v.binary_search(&l).unwrap_or_else(|x| x);
+        let ri = v.binary_search(&r).unwrap_or_else(|x| x);
+        let w: Vec<_> = tree.range(Some(&l), Some(&r)).collect();
+        (0..(ri - li)).all(|i| v[i + li] == *w[i])
     }
 }
