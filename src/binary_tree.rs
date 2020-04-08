@@ -213,8 +213,8 @@ where
         }
     }
 
-    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
-        Iter::new(self)
+    pub fn iter<'a>(&'a self) -> RangeIter<'a, T, &T> {
+        RangeIter::new(self, None, None)
     }
 
     pub fn get<Q>(&self, value: &Q) -> Option<&T>
@@ -295,37 +295,6 @@ impl<T> IntoIterator for BinaryTree<T> {
     }
 }
 
-pub struct Iter<'a, T> {
-    stack: Vec<&'a Node<T>>,
-}
-
-impl<'a, T> Iter<'a, T> {
-    pub fn new(tree: &'a BinaryTree<T>) -> Self {
-        let mut iter = Iter { stack: Vec::new() };
-        iter.traverse_left(tree);
-        iter
-    }
-
-    fn traverse_left(&mut self, mut tree: &'a BinaryTree<T>) {
-        while let NonEmpty(ref node) = tree {
-            self.stack.push(node);
-            tree = &node.left;
-        }
-    }
-}
-
-impl<'a, T> Iterator for Iter<'a, T> {
-    type Item = &'a T;
-    fn next(&mut self) -> Option<Self::Item> {
-        let node = match self.stack.pop() {
-            None => return None,
-            Some(node) => node,
-        };
-        self.traverse_left(&node.right);
-        Some(&node.value)
-    }
-}
-
 impl<T: Ord> FromIterator<T> for BinaryTree<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut tree = Empty;
@@ -340,6 +309,76 @@ impl<T: Ord> Index<&T> for BinaryTree<T> {
     type Output = T;
     fn index(&self, index: &T) -> &Self::Output {
         self.get(index).unwrap()
+    }
+}
+
+pub struct RangeIter<'a, T, K> {
+    end: Option<K>,
+    stack: Vec<&'a Node<T>>,
+}
+
+impl<'a, 'b, T, K> RangeIter<'a, T, &'b K>
+where
+    T: Ord + Borrow<K>,
+    K: ?Sized + Ord,
+{
+    fn new(tree: &'a BinaryTree<T>, start: Option<&'b K>, end: Option<&'b K>) -> Self {
+        let mut iter = RangeIter {
+            end: end,
+            stack: Vec::new(),
+        };
+        match start {
+            None => iter.traverse_left(tree),
+            Some(i) => iter.traverse(tree, i),
+        }
+        iter
+    }
+    fn traverse_left(&mut self, mut tree: &'a BinaryTree<T>) {
+        while let NonEmpty(ref node) = tree {
+            self.stack.push(node);
+            tree = &node.left;
+        }
+    }
+    fn traverse(&mut self, tree: &'a BinaryTree<T>, start: &K) {
+        match *tree {
+            Empty => (),
+            NonEmpty(ref node) => match start.cmp(node.value.borrow()) {
+                Less => {
+                    self.stack.push(&node);
+                    self.traverse(&node.left, start);
+                }
+                Equal => self.stack.push(&node),
+                Greater => {
+                    self.traverse(&node.right, start);
+                }
+            },
+        }
+    }
+}
+
+impl<'a, 'b, T, K> Iterator for RangeIter<'a, T, &'b K>
+where
+    T: Ord + Borrow<K>,
+    K: ?Sized + Ord,
+{
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.stack.pop() {
+            None => None,
+            Some(ref node) => match self.end {
+                None => {
+                    self.traverse_left(&node.right);
+                    Some(&node.value)
+                }
+                Some(r) => match r.cmp(&node.value.borrow()) {
+                    Greater => {
+                        self.traverse_left(&node.right);
+                        Some(&node.value)
+                    }
+                    _ => None,
+                },
+            },
+        }
     }
 }
 
