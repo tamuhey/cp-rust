@@ -244,34 +244,28 @@ pub struct IntoIter<T> {
 
 impl<T> IntoIter<T> {
     pub fn new(tree: BinaryTree<T>) -> Self {
-        let stack = match tree {
-            Empty => vec![],
-            NonEmpty(v) => vec![v],
-        };
-        IntoIter { stack: stack }
+        let mut into_iter = IntoIter { stack: Vec::new() };
+        into_iter.traverse_left(tree);
+        into_iter
+    }
+
+    fn traverse_left(&mut self, mut tree: BinaryTree<T>) {
+        while let NonEmpty(mut node) = tree {
+            tree = mem::take(&mut node.left);
+            self.stack.push(node);
+        }
     }
 }
 
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.stack.pop() {
-                None => return None,
-                Some(mut u) => match mem::take(&mut u.left) {
-                    Empty => {
-                        if let NonEmpty(right) = u.right {
-                            self.stack.push(right);
-                        };
-                        return Some(u.value);
-                    }
-                    NonEmpty(left) => {
-                        self.stack.push(u);
-                        self.stack.push(left);
-                    }
-                },
-            }
-        }
+        let mut node = match self.stack.pop() {
+            None => return None,
+            Some(node) => node,
+        };
+        self.traverse_left(mem::take(&mut node.right));
+        Some(node.value)
     }
 }
 
@@ -290,11 +284,11 @@ pub struct Iter<'a, T> {
 impl<'a, T> Iter<'a, T> {
     pub fn new(tree: &'a BinaryTree<T>) -> Self {
         let mut iter = Iter { stack: Vec::new() };
-        iter.traverse(tree);
+        iter.traverse_left(tree);
         iter
     }
 
-    fn traverse(&mut self, mut tree: &'a BinaryTree<T>) {
+    fn traverse_left(&mut self, mut tree: &'a BinaryTree<T>) {
         while let NonEmpty(ref node) = tree {
             self.stack.push(node);
             tree = &node.left;
@@ -309,7 +303,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
             None => return None,
             Some(node) => node,
         };
-        self.traverse(&node.right);
+        self.traverse_left(&node.right);
         Some(&node.value)
     }
 }
