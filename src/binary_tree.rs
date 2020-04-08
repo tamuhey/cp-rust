@@ -7,6 +7,7 @@ use std::cmp::Ordering::*;
 use std::default::Default;
 use std::iter::{FromIterator, Iterator};
 use std::mem;
+use std::ops::Index;
 
 #[derive(Debug)]
 pub enum BinaryTree<T> {
@@ -335,6 +336,13 @@ impl<T: Ord> FromIterator<T> for BinaryTree<T> {
     }
 }
 
+impl<T: Ord> Index<&T> for BinaryTree<T> {
+    type Output = T;
+    fn index(&self, index: &T) -> &Self::Output {
+        self.get(index).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -444,9 +452,11 @@ mod test {
     }
 
     #[quickcheck]
-    fn get(v: HashSet<usize>, indices: Vec<usize>) -> bool {
+    fn get_and_index(v: HashSet<usize>, indices: Vec<usize>) -> bool {
         let w = v.clone();
         let tree: BinaryTree<_> = v.into_iter().collect();
-        w.iter().all(|wi| tree.get(wi) != None) && indices.iter().all(|i| w.get(i) == tree.get(i))
+        w.iter().all(|wi| tree.get(wi) != None)
+            && indices.iter().all(|i| w.get(i) == tree.get(i))
+            && w.iter().all(|wi| tree[wi] == *wi)
     }
 }
