@@ -284,40 +284,33 @@ impl<T> IntoIterator for BinaryTree<T> {
 }
 
 pub struct Iter<'a, T> {
-    stack: Vec<(&'a Node<T>, bool)>,
+    stack: Vec<&'a Node<T>>,
 }
 
 impl<'a, T> Iter<'a, T> {
     pub fn new(tree: &'a BinaryTree<T>) -> Self {
-        let stack = match tree {
-            Empty => vec![],
-            NonEmpty(v) => vec![(v.as_ref(), false)],
-        };
-        Iter { stack: stack }
+        let mut iter = Iter { stack: Vec::new() };
+        iter.traverse(tree);
+        iter
+    }
+
+    fn traverse(&mut self, mut tree: &'a BinaryTree<T>) {
+        while let NonEmpty(ref node) = tree {
+            self.stack.push(node);
+            tree = &node.left;
+        }
     }
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
     type Item = &'a T;
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.stack.pop() {
-                None => return None,
-                Some((u, flag)) => {
-                    if flag {
-                        if let NonEmpty(ref right) = u.right {
-                            self.stack.push((right, false))
-                        }
-                        return Some(&u.value);
-                    } else {
-                        self.stack.push((u, true));
-                        if let NonEmpty(ref left) = u.left {
-                            self.stack.push((left, false))
-                        }
-                    }
-                }
-            }
-        }
+        let node = match self.stack.pop() {
+            None => return None,
+            Some(node) => node,
+        };
+        self.traverse(&node.right);
+        Some(&node.value)
     }
 }
 
