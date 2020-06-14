@@ -3,13 +3,10 @@ fn comb(m: usize, n: usize) -> usize {
         return 0;
     }
     let mut ret = 1;
-    for i in 0..m {
+    for i in (m-n)..m {
         ret *= i + 1;
     }
     for i in 0..n {
-        ret /= i + 1
-    }
-    for i in 0..(m - n) {
         ret /= i + 1
     }
     ret
@@ -42,5 +39,9 @@ mod test {
         for &(p, m, n, expected) in cases {
             assert_eq!(expected, combmodlucas(m, n, p))
         }
+    }
+    #[test]
+    fn test_comb() {
+        assert_eq!(comb(18,9), 48620);
     }
 }
