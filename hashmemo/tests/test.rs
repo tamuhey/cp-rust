@@ -1,4 +1,4 @@
-use hashmemo::memo;
+use memor::memo;
 
 #[memo]
 fn fib(n: i64) -> i64 {
