@@ -1,3 +1,6 @@
 [submodule "avltree"]
 	path = avltree
 	url = git://github.com/tamuhey/avltree.git
+[submodule "memor"]
+	path = memor
+	url = ./memor
