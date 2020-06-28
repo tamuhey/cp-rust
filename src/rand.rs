@@ -1,12 +1,12 @@
 const M: usize = 1 << 31;
 const A: usize = 22695477;
 const C: usize = 1;
-struct Rng {
-    state: usize,
+pub struct Rng {
+    pub state: usize,
 }
 
 impl Rng {
-    fn new(state: usize) -> Self {
+    pub fn new(state: usize) -> Self {
         Rng { state: state }
     }
 }
@@ -20,17 +20,17 @@ impl Iterator for Rng {
     }
 }
 
-struct Rand {
-    rng: Rng,
+pub struct Rand {
+    pub rng: Rng,
 }
 
 impl Rand {
-    fn new(state: usize) -> Self {
+    pub fn new(state: usize) -> Self {
         Rand {
             rng: Rng::new(state),
         }
     }
-    fn uniform(&mut self, low: f64, high: f64) -> f64 {
+    pub fn uniform(&mut self, low: f64, high: f64) -> f64 {
         let x = self.rng.next().unwrap() as f64;
         x * (high - low) / (M as f64) + low
     }

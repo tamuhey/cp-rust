@@ -1,10 +1,6 @@
 // verified in https://atcoder.jp/contests/arc008/submissions/10187379
-trait Monoid {
-    fn unit() -> Self;
-    fn add(lhs: Self, rhs: Self) -> Self;
-}
-
-struct SegTree<T: Monoid + Clone> {
+use crate::monoid::*;
+pub struct SegTree<T: Monoid + Clone> {
     dat: Vec<T>,
     n: usize,
 }
@@ -21,7 +17,7 @@ impl<T: Monoid + Copy> SegTree<T> {
             k >>= 1;
             k > 0
         } {
-            self.dat[k] = T::add(self.dat[k << 1], self.dat[k << 1 | 1]);
+            self.dat[k] = T::add(&self.dat[k << 1], &self.dat[k << 1 | 1]);
         }
     }
     pub fn get(&self, a: usize, b: usize) -> T {
@@ -31,15 +27,15 @@ impl<T: Monoid + Copy> SegTree<T> {
         let mut vb = T::unit();
         while a < b {
             if a & 1 != 0 {
-                va = T::add(va, self.dat[a]);
+                va = T::add(&va, &self.dat[a]);
                 a += 1;
             }
             if b & 1 != 0 {
-                vb = T::add(self.dat[b - 1], vb);
+                vb = T::add(&self.dat[b - 1], &vb);
             }
             a >>= 1;
             b >>= 1;
         }
-        T::add(va, vb)
+        T::add(&va, &vb)
     }
 }

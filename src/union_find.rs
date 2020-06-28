@@ -1,5 +1,5 @@
-struct UnionFind {
-    parents: Vec<usize>,
+pub struct UnionFind {
+    pub parents: Vec<usize>,
 }
 impl UnionFind {
     pub fn new(n: usize) -> Self {

@@ -1,4 +1,4 @@
-fn matmulmod(a: &Vec<Vec<usize>>, b: &Vec<Vec<usize>>, m: usize) -> Vec<Vec<usize>> {
+pub fn matmulmod(a: &Vec<Vec<usize>>, b: &Vec<Vec<usize>>, m: usize) -> Vec<Vec<usize>> {
     (0..a.len())
         .map(|i| {
             (0..b[0].len())
@@ -12,7 +12,7 @@ fn matmulmod(a: &Vec<Vec<usize>>, b: &Vec<Vec<usize>>, m: usize) -> Vec<Vec<usiz
         .collect()
 }
 
-fn matpowmod(a: &Vec<Vec<usize>>, n: usize, m: usize) -> Vec<Vec<usize>> {
+pub fn matpowmod(a: &Vec<Vec<usize>>, n: usize, m: usize) -> Vec<Vec<usize>> {
     let mut n = n;
     let mut ret: Vec<Vec<usize>> = (0..a.len())
         .map(|i| {
@@ -32,7 +32,7 @@ fn matpowmod(a: &Vec<Vec<usize>>, n: usize, m: usize) -> Vec<Vec<usize>> {
     ret
 }
 
-fn matvecmod(a: Vec<Vec<usize>>, x: Vec<usize>, m: usize) -> Vec<usize> {
+pub fn matvecmod(a: Vec<Vec<usize>>, x: Vec<usize>, m: usize) -> Vec<usize> {
     (0..a.len())
         .map(|i| {
             (0..x.len())

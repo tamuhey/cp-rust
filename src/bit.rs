@@ -1,18 +1,18 @@
 // verified in https://atcoder.jp/contests/chokudai_S001/submissions/10200651
-struct BIT<T> {
-    dat: Vec<T>,
-    unit: T,
+pub struct BIT<T> {
+    pub dat: Vec<T>,
+    pub unit: T,
 }
 
 impl<T: std::ops::Add<Output = T> + Clone> BIT<T> {
-    fn new(n: usize, unit: T) -> Self {
+    pub fn new(n: usize, unit: T) -> Self {
         let dat = vec![unit.clone(); n];
         BIT {
             dat: dat,
             unit: unit.clone(),
         }
     }
-    fn add(&mut self, k: usize, v: T) {
+    pub fn add(&mut self, k: usize, v: T) {
         let mut x = k;
         let n = self.dat.len();
         while x < n {
@@ -20,7 +20,7 @@ impl<T: std::ops::Add<Output = T> + Clone> BIT<T> {
             x |= x + 1;
         }
     }
-    fn sum(&self, k: usize) -> T {
+    pub fn sum(&self, k: usize) -> T {
         let mut ret = self.unit.clone();
         if k == 0 {
             return ret;

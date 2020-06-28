@@ -1,4 +1,4 @@
-fn bellman_ford(g: &Vec<Vec<(usize, isize)>>, source: usize) -> Result<Vec<isize>, ()> {
+pub fn bellman_ford(g: &Vec<Vec<(usize, isize)>>, source: usize) -> Result<Vec<isize>, ()> {
     let n = g.len();
     let mut ret = vec![std::isize::MAX / 2; n];
     ret[source] = 0;

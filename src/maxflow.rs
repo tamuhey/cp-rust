@@ -1,5 +1,5 @@
 use std::cmp::min;
-fn dfs(
+pub fn dfs(
     g: &Vec<Vec<usize>>,
     s: usize,
     t: usize,
@@ -21,7 +21,7 @@ fn dfs(
     }
 }
 
-fn calc_maxflow(g: &Vec<Vec<usize>>, s: usize, t: usize) -> usize {
+pub fn calc_maxflow(g: &Vec<Vec<usize>>, s: usize, t: usize) -> usize {
     let n = g.len();
     let mut ret = 0;
     let mut parents = vec![0; n];

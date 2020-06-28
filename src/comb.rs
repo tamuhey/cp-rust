@@ -1,9 +1,9 @@
-fn comb(m: usize, n: usize) -> usize {
+pub fn comb(m: usize, n: usize) -> usize {
     if m < n {
         return 0;
     }
     let mut ret = 1;
-    for i in (m-n)..m {
+    for i in (m - n)..m {
         ret *= i + 1;
     }
     for i in 0..n {
@@ -12,7 +12,7 @@ fn comb(m: usize, n: usize) -> usize {
     ret
 }
 
-fn combmodlucas(m: usize, n: usize, p: usize) -> usize {
+pub fn combmodlucas(m: usize, n: usize, p: usize) -> usize {
     let mut m = m;
     let mut n = n;
     if m < n {
@@ -42,6 +42,6 @@ mod test {
     }
     #[test]
     fn test_comb() {
-        assert_eq!(comb(18,9), 48620);
+        assert_eq!(comb(18, 9), 48620);
     }
 }
