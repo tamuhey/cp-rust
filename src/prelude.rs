@@ -10,3 +10,7 @@ pub use num::integer::{gcd, lcm};
 pub use num::{abs, clamp, BigInt, BigRational, BigUint, Num, Rational};
 
 pub use crate::binary_search::{binary_search, lower_bound, upper_bound};
+pub use crate::combmod::*;
+pub use crate::mint::Mint;
+pub use crate::monoid::*;
+pub use crate::prime::*;

@@ -9,6 +9,8 @@ pub mod maxflow;
 pub mod mint;
 pub mod monoid;
 pub mod permutations;
+pub mod prelude;
+pub mod prime;
 pub mod rand;
 pub mod segment_tree;
 pub mod union_find;
