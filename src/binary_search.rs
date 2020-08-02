@@ -1,22 +1,5 @@
 // Copied from https://github.com/tanakh/competitive-rs/blob/master/src/binary_search.rs, distributed under MIT license
 use std::ops::{Add, Div};
-
-/// Generic binary search
-///
-/// # Arguments
-///
-/// * `l` - the value assumes to `pred(l) = true`
-/// * `r` - the value assumes to `pred(r) = false`
-/// * `pred` - predicate for binary search
-///
-/// # Returns
-///
-/// * `ret` where `pred(ret) = true` && `pred(ret + delta) = false`
-///
-/// # Note
-///
-/// `pred(l)` and `pred(r)` are not called. `pred` is called only values in the range `(l, r)`.
-///
 pub fn binary_search<T: Add<Output = T> + Div<Output = T> + PartialEq + From<u8> + Copy>(
     l: T,
     r: T,

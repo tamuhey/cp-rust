@@ -3,8 +3,8 @@ pub struct UnionFind {
 }
 impl UnionFind {
     pub fn new(n: usize) -> Self {
-        let par = (0..n).collect();
-        UnionFind { parents: par }
+        let parents = (0..n).collect();
+        UnionFind { parents }
     }
     pub fn root(&mut self, x: usize) -> usize {
         if self.parents[x] == x {
