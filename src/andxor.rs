@@ -1,3 +1,4 @@
+// verified: https://atcoder.jp/contests/abc009/submissions/16843843
 use num::{One, Zero};
 use std::ops::{Add, BitAnd, BitXor, Mul};
 // And Xor rig
