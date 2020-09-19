@@ -1,3 +1,9 @@
+#[cfg(test)]
+extern crate quickcheck;
+#[cfg(test)]
+#[macro_use(quickcheck)]
+extern crate quickcheck_macros;
+use std::str::FromStr;
 pub mod bellman_ford;
 pub mod binary_search;
 pub mod bit;

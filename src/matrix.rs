@@ -1,33 +1,42 @@
-pub fn matmulmod(a: &Vec<Vec<usize>>, b: &Vec<Vec<usize>>, m: usize) -> Vec<Vec<usize>> {
+// Verified: https://yukicoder.me/submissions/555843
+use num::{One, Zero};
+
+fn idmat<T>(n: usize) -> Vec<Vec<T>>
+where
+    T: One + Zero + Clone,
+{
+    let mut ret = vec![vec![T::zero(); n]; n];
+    for i in 0..n {
+        ret[i][i] = T::one();
+    }
+    ret
+}
+
+fn matmulmod(a: &[Vec<usize>], b: &[Vec<usize>], m: usize) -> Vec<Vec<usize>> {
+    assert_eq!(a[0].len(), b.len());
     (0..a.len())
         .map(|i| {
             (0..b[0].len())
-                .map(|j| {
+                .map(|k| {
                     (0..b.len())
-                        .map(|k| ((a[i][k] % m) * (b[k][j] % m)))
-                        .fold(0, |i, j| (i + j) % m)
+                        .map(|j| (a[i][j] * b[j][k]) % m)
+                        .fold(0, |x, y| (x + y) % m)
                 })
                 .collect()
         })
         .collect()
 }
 
-pub fn matpowmod(a: &Vec<Vec<usize>>, n: usize, m: usize) -> Vec<Vec<usize>> {
-    let mut n = n;
-    let mut ret: Vec<Vec<usize>> = (0..a.len())
-        .map(|i| {
-            let mut a = vec![0; a.len()];
-            a[i] = 1;
-            a
-        })
-        .collect();
+fn matpowmod(a: &Vec<Vec<usize>>, mut p: usize, m: usize) -> Vec<Vec<usize>> {
+    let n = a.len();
+    let mut ret = idmat(n);
     let mut cur = a.clone();
-    while n > 0 {
-        if n & 1 == 1 {
+    while p > 0 {
+        if p & 1 == 1 {
             ret = matmulmod(&ret, &cur, m);
         }
         cur = matmulmod(&cur, &cur, m);
-        n >>= 1;
+        p >>= 1;
     }
     ret
 }

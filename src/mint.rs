@@ -1,3 +1,4 @@
+use num::Zero;
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use std::str::FromStr;
@@ -5,6 +6,15 @@ pub const MOD: usize = 1000_000_007;
 
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
 pub struct Mint<T>(pub T);
+
+impl Zero for Mint<usize> {
+    fn zero() -> Self {
+        Self(0)
+    }
+    fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
+}
 
 impl Mint<usize> {
     pub fn pow(self, exp: usize) -> Self {
