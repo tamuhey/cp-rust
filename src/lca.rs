@@ -1,5 +1,6 @@
 // Lowest Common Ancestor
 // Verified: http://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=4858117#1
+// Verified: https://atcoder.jp/contests/abc014/tasks/abc014_4
 fn msb(mut n: usize) -> usize {
     let mut ret = 0;
     while n > 1 {
@@ -24,11 +25,16 @@ impl LowestCommonAncestor {
         let mut depth = vec![!0; n];
         let mut stack = vec![root];
         depth[root] = 0;
+        let mut seen = vec![false; n];
+        seen[root] = true;
         while let Some(v) = stack.pop() {
             for &c in &tree[v] {
-                parent[c][0] = v;
-                depth[c] = depth[v] + 1;
-                stack.push(c);
+                if !seen[c] {
+                    parent[c][0] = v;
+                    depth[c] = depth[v] + 1;
+                    stack.push(c);
+                    seen[c] = true;
+                }
             }
         }
         for i in 1..k {
