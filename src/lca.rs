@@ -1,47 +1,5 @@
 // Lowest Common Ancestor
 // Verified: http://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=4858117#1
-#![allow(unused_imports)]
-#![allow(unused_macros)]
-use std::cmp::{max, min};
-use std::collections::*;
-use std::i64;
-use std::io::{stdin, Read};
-use std::usize;
-
-#[allow(unused_macros)]
-macro_rules! parse {
-    ($it: ident ) => {};
-    ($it: ident, ) => {};
-    ($it: ident, $var:ident : $t:tt $($r:tt)*) => {
-        let $var = parse_val!($it, $t);
-        parse!($it $($r)*);
-    };
-    ($it: ident, mut $var:ident : $t:tt $($r:tt)*) => {
-        let mut $var = parse_val!($it, $t);
-        parse!($it $($r)*);
-    };
-    ($it: ident, $var:ident $($r:tt)*) => {
-        let $var = parse_val!($it, usize);
-        parse!($it $($r)*);
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! parse_val {
-    ($it: ident, [$t:tt; $len:expr]) => {
-        (0..$len).map(|_| parse_val!($it, $t)).collect::<Vec<_>>();
-    };
-    ($it: ident, ($($t: tt),*)) => {
-        ($(parse_val!($it, $t)),*)
-    };
-    ($it: ident, u1) => {
-        $it.next().unwrap().parse::<usize>().unwrap() -1
-    };
-    ($it: ident, $t: ty) => {
-        $it.next().unwrap().parse::<$t>().unwrap()
-    };
-}
-
 fn msb(mut n: usize) -> usize {
     let mut ret = 0;
     while n > 1 {
@@ -113,51 +71,5 @@ impl LowestCommonAncestor {
             }
         }
         self.parent[u][0]
-    }
-}
-
-fn solve(s: &str) {
-    let mut it = s.split_whitespace();
-    parse!(it, n: usize);
-    let mut tree = vec![vec![]; n];
-    for i in 0..n {
-        parse!(it, k: usize, c: [usize; k]);
-        tree[i] = c;
-    }
-    let lca = LowestCommonAncestor::new(&tree, 0);
-    parse!(it, q: usize);
-    for _ in 0..q {
-        parse!(it, u: usize, v: usize);
-        println!("{}", lca.get(u, v));
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_input() {
-        let s = "
-        ";
-        solve(s);
-    }
-}
-trait ChMinMax {
-    fn chmin(&mut self, other: Self);
-    fn chmax(&mut self, other: Self);
-}
-impl<T> ChMinMax for T
-where
-    T: PartialOrd,
-{
-    fn chmin(&mut self, other: Self) {
-        if *self > other {
-            *self = other
-        }
-    }
-    fn chmax(&mut self, other: Self) {
-        if *self < other {
-            *self = other
-        }
     }
 }

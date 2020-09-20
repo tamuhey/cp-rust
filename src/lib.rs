@@ -10,6 +10,7 @@ pub mod bit;
 pub mod comb;
 pub mod combmod;
 pub mod fft;
+pub mod lca;
 pub mod matrix;
 pub mod maxflow;
 pub mod mint;
