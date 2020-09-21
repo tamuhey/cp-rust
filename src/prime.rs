@@ -1,3 +1,15 @@
+/// 拡張ユークリッド互除法
+/// ax + by = c
+/// verified: https://atcoder.jp/contests/acl1/submissions/16916747
+fn ext_gcd(a: u128, b: u128) -> (u128, i128, i128) {
+    if b == 0 {
+        return (a, 1, 0);
+    }
+    let (d, y, x) = ext_gcd(b, a % b);
+    // (c, x, y)
+    (d, x, y - ((a / b) as i128) * x)
+}
+
 use std::collections::HashMap;
 pub fn factor(mut n: usize) -> HashMap<usize, usize> {
     let mut ret = std::collections::HashMap::new();
