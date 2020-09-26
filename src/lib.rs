@@ -20,4 +20,5 @@ pub mod prelude;
 pub mod prime;
 pub mod rand;
 pub mod segment_tree;
+mod sparse_table;
 pub mod union_find;
