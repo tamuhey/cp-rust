@@ -25,7 +25,8 @@ impl<T: Monoid + Copy> SegTree<T> {
             k >>= 1;
             k > 0
         } {
-            self.dat[k] = T::add(&self.dat[k << 1], &self.dat[k << 1 | 1]);
+            let pk = k << 1;
+            self.dat[k] = T::add(&self.dat[pk], &self.dat[pk | 1]);
         }
     }
     pub fn get(&self, a: usize, b: usize) -> T {
