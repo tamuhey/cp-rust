@@ -1,8 +1,8 @@
 use num::{Bounded, One, Zero};
 use std::ops::{Add, Mul};
 pub trait Monoid {
-    fn unit() -> Self;
-    fn add(lhs: &Self, rhs: &Self) -> Self;
+    fn id() -> Self;
+    fn op(lhs: &Self, rhs: &Self) -> Self;
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -12,10 +12,10 @@ impl<T> Monoid for Sum<T>
 where
     T: Zero + Add<Output = T> + Copy,
 {
-    fn unit() -> Self {
+    fn id() -> Self {
         Self(T::zero())
     }
-    fn add(lhs: &Self, rhs: &Self) -> Self {
+    fn op(lhs: &Self, rhs: &Self) -> Self {
         Self(lhs.0 + rhs.0)
     }
 }
@@ -30,11 +30,11 @@ impl<T> From<T> for Sum<T> {
 pub struct Product<T>(pub T);
 
 impl<T: Copy + One + Mul<Output = T>> Monoid for Product<T> {
-    fn unit() -> Self {
+    fn id() -> Self {
         Self(T::one())
     }
 
-    fn add(l: &Self, r: &Self) -> Self {
+    fn op(l: &Self, r: &Self) -> Self {
         Self(l.0 * r.0)
     }
 }
@@ -49,11 +49,11 @@ impl<T> From<T> for Product<T> {
 pub struct Max<T>(pub T);
 
 impl<T: Copy + Ord + Bounded> Monoid for Max<T> {
-    fn unit() -> Self {
+    fn id() -> Self {
         Self(<T as Bounded>::min_value())
     }
 
-    fn add(l: &Self, r: &Self) -> Self {
+    fn op(l: &Self, r: &Self) -> Self {
         Self(l.0.max(r.0))
     }
 }
@@ -62,11 +62,11 @@ impl<T: Copy + Ord + Bounded> Monoid for Max<T> {
 pub struct Min<T>(pub T);
 
 impl<T: Copy + Ord + Bounded> Monoid for Min<T> {
-    fn unit() -> Self {
+    fn id() -> Self {
         Self(<T as Bounded>::max_value())
     }
 
-    fn add(l: &Self, r: &Self) -> Self {
+    fn op(l: &Self, r: &Self) -> Self {
         Self(l.0.min(r.0))
     }
 }

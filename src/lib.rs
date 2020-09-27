@@ -10,6 +10,7 @@ pub mod bit;
 pub mod comb;
 pub mod combmod;
 pub mod fft;
+pub mod lazy_segment_tree;
 pub mod lca;
 pub mod matrix;
 pub mod maxflow;

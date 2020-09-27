@@ -7,7 +7,7 @@ pub struct SegTree<T: Monoid + Clone> {
 
 impl<T: Monoid + Copy> SegTree<T> {
     pub fn new(n: usize) -> Self {
-        let dat = vec![T::unit(); n << 1];
+        let dat = vec![T::id(); n << 1];
         SegTree { dat, n }
     }
     pub fn new_with(a: impl ExactSizeIterator<Item = T>) -> Self {
@@ -26,26 +26,26 @@ impl<T: Monoid + Copy> SegTree<T> {
             k > 0
         } {
             let pk = k << 1;
-            self.dat[k] = T::add(&self.dat[pk], &self.dat[pk | 1]);
+            self.dat[k] = T::op(&self.dat[pk], &self.dat[pk | 1]);
         }
     }
     pub fn get(&self, a: usize, b: usize) -> T {
         let mut a = a + self.n;
         let mut b = b + self.n;
-        let mut va = T::unit();
-        let mut vb = T::unit();
+        let mut va = T::id();
+        let mut vb = T::id();
         while a < b {
             if a & 1 != 0 {
-                va = T::add(&va, &self.dat[a]);
+                va = T::op(&va, &self.dat[a]);
                 a += 1;
             }
             if b & 1 != 0 {
-                vb = T::add(&self.dat[b - 1], &vb);
+                vb = T::op(&self.dat[b - 1], &vb);
             }
             a >>= 1;
             b >>= 1;
         }
-        T::add(&va, &vb)
+        T::op(&va, &vb)
     }
 }
 

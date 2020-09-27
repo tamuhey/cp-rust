@@ -7,3 +7,6 @@
 [submodule "acl_cpp"]
 	path = acl_cpp
 	url = https://github.com/atcoder/ac-library
+[submodule "ac-library-rs"]
+	path = ac-library-rs
+	url = https://github.com/rust-lang-ja/ac-library-rs
