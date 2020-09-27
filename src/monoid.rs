@@ -1,63 +1,63 @@
 use num::{Bounded, One, Zero};
-use std::convert::Infallible;
 use std::marker::PhantomData;
 use std::ops::{Add, Mul};
+
+enum Void {}
+
 pub trait Monoid {
     type S;
     fn id() -> Self::S;
     fn op(lhs: &Self::S, rhs: &Self::S) -> Self::S;
 }
 
-// #[derive(Copy, Clone, Debug)]
-// pub struct Sum<T>(PhantomData<T>);
+pub struct Sum<T>(Void, PhantomData<T>);
 
-// impl<T> Monoid for Sum<T>
-// where
-//     T: Zero + Add<Output = T> + Copy,
-// {
-//     type S = T;
-//     fn id() -> Self::S {
-//         T::zero()
-//     }
-//     fn op(lhs: &Self::S, rhs: &Self::S) -> Self::S {
-//         *lhs + *rhs
-//     }
-// }
+impl<T> Monoid for Sum<T>
+where
+    T: Zero + Add<Output = T> + Copy,
+{
+    type S = T;
+    fn id() -> Self::S {
+        T::zero()
+    }
+    fn op(lhs: &Self::S, rhs: &Self::S) -> Self::S {
+        *lhs + *rhs
+    }
+}
 
-// #[derive(Clone, Copy, Debug)]
-// pub struct Product<T>(pub T);
+pub struct Product<T>(Void, PhantomData<T>);
 
-// impl<T: Copy + One + Mul<Output = T>> Monoid for Product<T> {
-//     fn id() -> Self {
-//         Self(T::one())
-//     }
+impl<T> Monoid for Product<T>
+where
+    T: Copy + One + Mul<Output = T>,
+{
+    type S = T;
+    fn id() -> Self::S {
+        T::one()
+    }
 
-//     fn op(l: &Self, r: &Self) -> Self {
-//         Self(l.0 * r.0)
-//     }
-// }
+    fn op(l: &Self::S, r: &Self::S) -> Self::S {
+        *l * *r
+    }
+}
 
-// impl<T> From<T> for Product<T> {
-//     fn from(v: T) -> Self {
-//         Product(v)
-//     }
-// }
+pub struct Max<T>(Void, PhantomData<T>);
 
-// #[derive(Copy, Clone, Debug)]
-// pub struct Max<T>(pub T);
+impl<T> Monoid for Max<T>
+where
+    T: Copy + Ord + Bounded,
+{
+    type S = T;
+    fn id() -> Self::S {
+        <T as Bounded>::min_value()
+    }
 
-// impl<T: Copy + Ord + Bounded> Monoid for Max<T> {
-//     fn id() -> Self {
-//         Self(<T as Bounded>::min_value())
-//     }
+    fn op(l: &Self::S, r: &Self::S) -> Self::S {
+        *l.max(r)
+    }
+}
 
-//     fn op(l: &Self, r: &Self) -> Self {
-//         Self(l.0.max(r.0))
-//     }
-// }
-
-#[derive(Copy, Clone, Debug)]
-pub struct Min<T>(Infallible, PhantomData<T>);
+pub struct Min<T>(Void, PhantomData<T>);
 
 impl<T> Monoid for Min<T>
 where
