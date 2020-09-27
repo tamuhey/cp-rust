@@ -1,5 +1,4 @@
 // sparse table: https://www.geeksforgeeks.org/sparse-table/
-use num::Bounded;
 
 fn msb(mut n: usize) -> usize {
     let mut ret = 0;

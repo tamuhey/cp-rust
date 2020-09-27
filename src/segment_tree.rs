@@ -8,7 +8,7 @@ pub struct SegTree<T: Monoid + Clone> {
 impl<T: Monoid + Copy> SegTree<T> {
     pub fn new(n: usize) -> Self {
         let dat = vec![T::unit(); n << 1];
-        SegTree { dat: dat, n: n }
+        SegTree { dat, n }
     }
     pub fn update(&mut self, k: usize, v: T) {
         let mut k = k + self.n;
@@ -37,5 +37,26 @@ impl<T: Monoid + Copy> SegTree<T> {
             b >>= 1;
         }
         T::add(&va, &vb)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::monoid::Min;
+    #[quickcheck]
+    fn test_min(mut a: Vec<usize>, b: Vec<(usize, usize)>) {
+        let n = a.len();
+        let mut sg = SegTree::new(n);
+        for (i, &ai) in a.iter().enumerate() {
+            sg.update(i, Min(ai));
+        }
+        for &(i, bi) in &b {
+            if i < n {
+                a[i] = bi;
+                sg.update(i, Min(bi));
+                assert_eq!(*a.iter().min().unwrap(), sg.get(0, n).0)
+            }
+        }
     }
 }
