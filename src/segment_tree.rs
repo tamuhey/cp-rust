@@ -1,24 +1,42 @@
 // verified in https://atcoder.jp/contests/arc008/submissions/10187379
 use crate::monoid::*;
-pub struct SegTree<T: Monoid + Clone> {
-    dat: Vec<T>,
+pub struct SegTree<T>
+where
+    T: Monoid,
+{
+    dat: Vec<T::S>,
     n: usize,
 }
 
-impl<T: Monoid + Copy> SegTree<T> {
+use std::borrow::Borrow;
+impl<T: Monoid, I> From<I> for SegTree<T>
+where
+    T::S: Copy,
+    I: IntoIterator,
+    I::Item: Borrow<T::S>,
+    I::IntoIter: ExactSizeIterator,
+{
+    fn from(a: I) -> Self {
+        let a = a.into_iter();
+        let n = a.len();
+        let mut ret = Self::new(n);
+        for (i, x) in a.enumerate() {
+            ret.update(i, x.borrow().clone())
+        }
+        ret
+    }
+}
+
+impl<T> SegTree<T>
+where
+    T: Monoid,
+    T::S: Copy,
+{
     pub fn new(n: usize) -> Self {
         let dat = vec![T::id(); n << 1];
         SegTree { dat, n }
     }
-    pub fn new_with(a: impl ExactSizeIterator<Item = T>) -> Self {
-        let n = a.len();
-        let mut ret = Self::new(n);
-        for (i, x) in a.enumerate() {
-            ret.update(i, x)
-        }
-        ret
-    }
-    pub fn update(&mut self, k: usize, v: T) {
+    pub fn update(&mut self, k: usize, v: T::S) {
         let mut k = k + self.n;
         self.dat[k] = v;
         while {
@@ -29,7 +47,7 @@ impl<T: Monoid + Copy> SegTree<T> {
             self.dat[k] = T::op(&self.dat[pk], &self.dat[pk | 1]);
         }
     }
-    pub fn get(&self, a: usize, b: usize) -> T {
+    pub fn get(&self, a: usize, b: usize) -> T::S {
         let mut a = a + self.n;
         let mut b = b + self.n;
         let mut va = T::id();
@@ -56,13 +74,12 @@ mod tests {
     #[quickcheck]
     fn test_min(mut a: Vec<usize>, b: Vec<(usize, usize)>) {
         let n = a.len();
-        let mut sg = SegTree::new_with(a.iter().cloned().map(Min));
-        eprintln!("{:?}", sg.dat); // DEBUG
+        let mut sg: SegTree<Min<_>> = (&a).into();
         for &(i, bi) in &b {
             if i < n {
                 a[i] = bi;
-                sg.update(i, Min(bi));
-                assert_eq!(*a.iter().min().unwrap(), sg.get(0, n).0)
+                sg.update(i, bi);
+                assert_eq!(*a.iter().min().unwrap(), sg.get(0, n))
             }
         }
     }
