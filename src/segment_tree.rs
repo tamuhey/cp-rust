@@ -10,6 +10,14 @@ impl<T: Monoid + Copy> SegTree<T> {
         let dat = vec![T::unit(); n << 1];
         SegTree { dat, n }
     }
+    pub fn new_with(a: impl ExactSizeIterator<Item = T>) -> Self {
+        let n = a.len();
+        let mut ret = Self::new(n);
+        for (i, x) in a.enumerate() {
+            ret.update(i, x)
+        }
+        ret
+    }
     pub fn update(&mut self, k: usize, v: T) {
         let mut k = k + self.n;
         self.dat[k] = v;
@@ -47,10 +55,8 @@ mod tests {
     #[quickcheck]
     fn test_min(mut a: Vec<usize>, b: Vec<(usize, usize)>) {
         let n = a.len();
-        let mut sg = SegTree::new(n);
-        for (i, &ai) in a.iter().enumerate() {
-            sg.update(i, Min(ai));
-        }
+        let mut sg = SegTree::new_with(a.iter().cloned().map(Min));
+        eprintln!("{:?}", sg.dat); // DEBUG
         for &(i, bi) in &b {
             if i < n {
                 a[i] = bi;
