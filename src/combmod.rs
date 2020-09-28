@@ -1,21 +1,19 @@
-#![allow(dead_code)]
+use ac_library_rs::{Modulus, StaticModInt};
 
-use crate::mint::*;
-
-pub fn get_factorials(n: usize) -> Vec<Mint<usize>> {
-    let mut facts = vec![Mint(0); n];
-    facts[0] = Mint(1);
+pub fn get_factorials<M: Modulus>(n: usize) -> Vec<StaticModInt<M>> {
+    let mut facts = vec![0.into(); n];
+    facts[0] = 1.into();
     for i in 1..n {
-        facts[i] = facts[i - 1] * (i as usize);
+        facts[i] = facts[i - 1] * StaticModInt::<M>::new(i);
     }
     facts
 }
 
-pub fn get_facinvs(n: usize, facts: &Vec<Mint<usize>>) -> Vec<Mint<usize>> {
-    let mut invs = vec![Mint(0); n];
+pub fn get_facinvs<M: Modulus>(n: usize, facts: &Vec<StaticModInt<M>>) -> Vec<StaticModInt<M>> {
+    let mut invs = vec![0.into(); n];
     invs[n - 1] = facts[n - 1].inv();
     for i in (0..(n - 1)).rev() {
-        invs[i] = invs[i + 1] * (i + 1)
+        invs[i] = invs[i + 1] * StaticModInt::new(i + 1)
     }
     invs
 }
@@ -49,12 +47,12 @@ pub fn prime_factors(x: usize) -> Vec<usize> {
     return res;
 }
 
-pub struct CombMod {
-    facts: Vec<Mint<usize>>,
-    invs: Vec<Mint<usize>>,
+pub struct CombMod<M: Modulus> {
+    facts: Vec<StaticModInt<M>>,
+    invs: Vec<StaticModInt<M>>,
 }
 
-impl CombMod {
+impl<M: Modulus> CombMod<M> {
     pub fn new(n: usize) -> Self {
         let facts = get_factorials(n);
         let invs = get_facinvs(n, &facts);
@@ -63,16 +61,16 @@ impl CombMod {
             invs: invs,
         }
     }
-    pub fn c(&self, a: usize, b: usize) -> Mint<usize> {
+    pub fn c(&self, a: usize, b: usize) -> StaticModInt<M> {
         if a < b {
-            Mint(0)
+            0.into()
         } else {
             (self.facts[a] * self.invs[b]) * self.invs[a - b]
         }
     }
-    pub fn p(&self, a: usize, b: usize) -> Mint<usize> {
+    pub fn p(&self, a: usize, b: usize) -> StaticModInt<M> {
         if b > a {
-            Mint(0)
+            0.into()
         } else {
             self.facts[a] * self.invs[a - b]
         }
