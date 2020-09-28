@@ -21,7 +21,7 @@ where
         let n = a.len();
         let mut ret = Self::new(n);
         for (i, x) in a.enumerate() {
-            ret.update(i, x.borrow().clone())
+            ret.set(i, x.borrow().clone())
         }
         ret
     }
@@ -36,7 +36,7 @@ where
         let dat = vec![T::id(); n << 1];
         SegTree { dat, n }
     }
-    pub fn update(&mut self, k: usize, v: T::S) {
+    pub fn set(&mut self, k: usize, v: T::S) {
         let mut k = k + self.n;
         self.dat[k] = v;
         while {
@@ -47,21 +47,21 @@ where
             self.dat[k] = T::op(&self.dat[pk], &self.dat[pk | 1]);
         }
     }
-    pub fn get(&self, a: usize, b: usize) -> T::S {
-        let mut a = a + self.n;
-        let mut b = b + self.n;
+    pub fn get(&self, mut l: usize, mut r: usize) -> T::S {
+        l += self.n;
+        r += self.n;
         let mut va = T::id();
         let mut vb = T::id();
-        while a < b {
-            if a & 1 != 0 {
-                va = T::op(&va, &self.dat[a]);
-                a += 1;
+        while l < r {
+            if l & 1 != 0 {
+                va = T::op(&va, &self.dat[l]);
+                l += 1;
             }
-            if b & 1 != 0 {
-                vb = T::op(&self.dat[b - 1], &vb);
+            if r & 1 != 0 {
+                vb = T::op(&self.dat[r - 1], &vb);
             }
-            a >>= 1;
-            b >>= 1;
+            l >>= 1;
+            r >>= 1;
         }
         T::op(&va, &vb)
     }
@@ -78,7 +78,7 @@ mod tests {
         for &(i, bi) in &b {
             if i < n {
                 a[i] = bi;
-                sg.update(i, bi);
+                sg.set(i, bi);
                 assert_eq!(*a.iter().min().unwrap(), sg.get(0, n))
             }
         }

@@ -12,4 +12,3 @@ pub use crate::binary_search::{binary_search, lower_bound, upper_bound};
 pub use crate::combmod::*;
 pub use crate::mint::Mint;
 pub use crate::monoid::*;
-pub use crate::prime::*;

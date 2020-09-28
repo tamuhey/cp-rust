@@ -1,7 +1,7 @@
 /// 拡張ユークリッド互除法
 /// ax + by = c
 /// verified: https://atcoder.jp/contests/acl1/submissions/16916747
-fn ext_gcd(a: u128, b: u128) -> (u128, i128, i128) {
+pub fn ext_gcd(a: u128, b: u128) -> (u128, i128, i128) {
     if b == 0 {
         return (a, 1, 0);
     }
@@ -38,13 +38,30 @@ pub fn num_divs(facts: &HashMap<usize, usize>) -> usize {
     facts.iter().map(|(_, v)| v + 1).product()
 }
 
-#[test]
-fn test_num_divs() {
-    assert_eq!(num_divs(&factor(1)), 1);
-    assert_eq!(num_divs(&factor(2)), 2);
-    assert_eq!(num_divs(&factor(4)), 3);
-    assert_eq!(num_divs(&factor(8)), 4);
-    assert_eq!(num_divs(&factor(6)), 4);
-    assert_eq!(num_divs(&factor(57)), 4);
-    assert_eq!(num_divs(&factor(60)), 12);
+pub fn msb(mut n: usize) -> usize {
+    let mut ret = 0;
+    while n > 1 {
+        n >>= 1;
+        ret += 1;
+    }
+    ret
+}
+
+pub fn ceil_pow2(n: u32) -> u32 {
+    32 - n.saturating_sub(1).leading_zeros()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_num_divs() {
+        assert_eq!(num_divs(&factor(1)), 1);
+        assert_eq!(num_divs(&factor(2)), 2);
+        assert_eq!(num_divs(&factor(4)), 3);
+        assert_eq!(num_divs(&factor(8)), 4);
+        assert_eq!(num_divs(&factor(6)), 4);
+        assert_eq!(num_divs(&factor(57)), 4);
+        assert_eq!(num_divs(&factor(60)), 12);
+    }
 }

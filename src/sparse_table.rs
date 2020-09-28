@@ -52,7 +52,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::cmp::{max, min};
+    use std::cmp::min;
     #[test]
     fn new() {
         let a = vec![7, 2, 3, 0, 5];

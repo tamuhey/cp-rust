@@ -2,10 +2,10 @@ use num::{Bounded, One, Zero};
 use std::marker::PhantomData;
 use std::ops::{Add, Mul};
 
-enum Void {}
+pub enum Void {}
 
 pub trait Monoid {
-    type S;
+    type S: Clone;
     fn id() -> Self::S;
     fn op(lhs: &Self::S, rhs: &Self::S) -> Self::S;
 }
