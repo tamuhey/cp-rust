@@ -16,5 +16,6 @@ pub mod matrix;
 pub mod maxflow;
 pub mod permutations;
 pub mod prelude;
+pub mod rolling_hash;
 mod sparse_table;
 pub mod union_find;

@@ -1,3 +1,4 @@
+use ac_library_rs::modint::Mod1000000007;
 use compro::combmod::*;
 
 #[test]
@@ -16,10 +17,10 @@ fn test_prime_factors() {
 
 #[test]
 fn test_combmod() {
-    let combmod = CombMod::new(100000);
-    assert_eq!(combmod.c(100, 50).0, 538992043);
-    assert_eq!(combmod.c(10000, 3001).0, 981292794);
-    assert_eq!(combmod.c(10000, 30001).0, 0);
-    assert_eq!(combmod.p(10, 4).0, 5040);
-    assert_eq!(combmod.p(30, 10).0, 349668811);
+    let combmod = CombMod::<Mod1000000007>::new(100000);
+    assert_eq!(combmod.c(100, 50), 538992043.into());
+    assert_eq!(combmod.c(10000, 3001), 981292794.into());
+    assert_eq!(combmod.c(10000, 30001), 0.into());
+    assert_eq!(combmod.p(10, 4), 5040.into());
+    assert_eq!(combmod.p(30, 10), 349668811.into());
 }
