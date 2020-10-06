@@ -33,25 +33,30 @@ impl RollingHash {
         }
         let mut ret = vec![];
         for l in 0..=(n - nt) {
-            if th == self.hashes[l + nt].wrapping_sub(self.hashes[l].wrapping_mul(self.bases[nt])) {
+            if th == self.get_hash(l, l + nt) {
                 ret.push(l)
             }
         }
         ret
     }
+    fn get_hash(&self, l: usize, r: usize) -> usize {
+        self.hashes[r].wrapping_sub(self.hashes[l].wrapping_mul(self.bases[r - l]))
+    }
     fn add(hash: usize, byte: u8) -> usize {
         hash.wrapping_mul(Self::base).wrapping_add(byte as usize)
     }
 }
-
 #[cfg(test)]
 mod test {
     use super::RollingHash;
     #[test]
     fn find_all() {
-        let a = "aafasdfasfdaafgga";
-        let b = "aa";
-        let rh = RollingHash::new(a);
-        assert_eq!(rh.find_all(b), vec![0, 11]);
+        for (a, b, expected) in &[
+            ("aafasdfasfdaafgga", "aa", vec![0, 11]),
+            ("wowowow", "wo", vec![0, 2, 4]),
+        ] {
+            let rh = RollingHash::new(a);
+            assert_eq!(&rh.find_all(b), expected);
+        }
     }
 }
