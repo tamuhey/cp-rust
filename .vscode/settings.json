@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "[Dd]ockerfile*": "dockerfile",
+        "docker-compose*": "yaml",
+        "math": "cpp"
+    }
+}

@@ -52,3 +52,22 @@ fn count_components_unordered(g: &[Vec<usize>]) -> usize {
     }
     ret
 }
+
+/// returns a number of nodes in one clored group if graph can be bi-colored
+/// verified: https://atcoder.jp/contests/code-festival-2017-qualb/submissions/17282096
+fn bicolor(g: &[Vec<usize>]) -> Option<usize> {
+    let n = g.len();
+    let mut color = vec![!0; n];
+    let mut stack = vec![(0, 0)];
+    while let Some((u, c)) = stack.pop() {
+        color[u] = c;
+        for &v in &g[u] {
+            match color[v] {
+                d if d == !0 => stack.push((v, 1 - c)),
+                d if d == c => return None,
+                _ => (),
+            }
+        }
+    }
+    Some(color.iter().filter(|x| **x == 0).count())
+}
