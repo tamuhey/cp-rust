@@ -77,7 +77,7 @@ fn matpowmod(a: &Vec<Vec<usize>>, mut p: usize, m: usize) -> Vec<Vec<usize>> {
     ret
 }
 
-pub fn matvecmod(a: Vec<Vec<usize>>, x: Vec<usize>, m: usize) -> Vec<usize> {
+pub fn matvecmod(a: &[Vec<usize>], x: &[usize], m: usize) -> Vec<usize> {
     (0..a.len())
         .map(|i| {
             (0..x.len())
