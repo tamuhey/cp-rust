@@ -9,6 +9,7 @@ pub mod binary_search;
 pub mod bit;
 pub mod comb;
 pub mod combmod;
+pub mod counter;
 pub mod dijkstra;
 pub mod fft;
 pub mod lca;
