@@ -11,7 +11,6 @@ pub mod comb;
 pub mod combmod;
 pub mod counter;
 pub mod dijkstra;
-pub mod fft;
 pub mod lca;
 pub mod math;
 pub mod matrix;

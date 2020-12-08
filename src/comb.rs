@@ -30,6 +30,22 @@ pub fn combmodlucas(m: usize, n: usize, p: usize) -> usize {
     ret
 }
 
+// 大きめのcombinationについて桁溢れしないように求める
+pub fn comb_large(a: u128, b: u128) -> u128 {
+    let mut ret = 1u128;
+    let mut i = a - b + 1;
+    let mut j = 2;
+    while i <= a || j <= b {
+        ret *= i;
+        i += 1;
+        while ret % j == 0 && j <= b {
+            ret /= j;
+            j += 1;
+        }
+    }
+    ret
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -43,5 +59,10 @@ mod test {
     #[test]
     fn test_comb() {
         assert_eq!(comb(18, 9), 48620);
+    }
+
+    #[test]
+    fn test_comb_large() {
+        assert_eq!(comb_large(18, 9), 48620);
     }
 }
