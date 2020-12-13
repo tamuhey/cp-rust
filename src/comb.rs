@@ -1,15 +1,11 @@
-pub fn comb(m: usize, n: usize) -> usize {
+pub fn comb(m: u128, n: u128) -> u128 {
     if m < n {
-        return 0;
+        0
+    } else if n == 0 {
+        1
+    } else {
+        comb(m - 1, n - 1) * m / n
     }
-    let mut ret = 1;
-    for i in (m - n)..m {
-        ret *= i + 1;
-    }
-    for i in 0..n {
-        ret /= i + 1
-    }
-    ret
 }
 
 pub fn combmodlucas(m: usize, n: usize, p: usize) -> usize {
@@ -20,30 +16,14 @@ pub fn combmodlucas(m: usize, n: usize, p: usize) -> usize {
     }
     let mut ret = 1;
     loop {
-        ret *= comb(m % p, n % p);
+        ret *= comb((m % p) as u128, (n % p) as u128);
         if m == 0 {
             break;
         }
         m /= p;
         n /= p;
     }
-    ret
-}
-
-// 大きめのcombinationについて桁溢れしないように求める
-pub fn comb_large(a: u128, b: u128) -> u128 {
-    let mut ret = 1u128;
-    let mut i = a - b + 1;
-    let mut j = 2;
-    while i <= a || j <= b {
-        ret *= i;
-        i += 1;
-        while ret % j == 0 && j <= b {
-            ret /= j;
-            j += 1;
-        }
-    }
-    ret
+    ret as usize
 }
 
 #[cfg(test)]
@@ -59,10 +39,6 @@ mod test {
     #[test]
     fn test_comb() {
         assert_eq!(comb(18, 9), 48620);
-    }
-
-    #[test]
-    fn test_comb_large() {
-        assert_eq!(comb_large(18, 9), 48620);
+        assert_eq!(comb(50, 25), 126410606437752);
     }
 }
