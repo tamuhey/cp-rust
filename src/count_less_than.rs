@@ -1,4 +1,5 @@
 // verified https://atcoder.jp/contests/abc174/submissions/15650411
+// RangeTree 領域木
 pub struct CountLessThan<T> {
     dat: Vec<Vec<T>>,
     n: usize,
