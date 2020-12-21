@@ -11,6 +11,7 @@ pub mod comb;
 pub mod combmod;
 pub mod counter;
 pub mod dijkstra;
+pub mod inversion_number;
 pub mod kruskal;
 pub mod lca;
 pub mod math;
