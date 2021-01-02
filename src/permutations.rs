@@ -1,38 +1,50 @@
 /// genarate permutation based on Heap's algorithm
-pub fn perm_part<T: Clone>(n: usize, v: &mut [T], all: &mut Vec<Vec<T>>) {
-    if n == 1 {
-        all.push(v.to_vec());
-        return;
-    }
-    for i in 0..n {
-        perm_part(n - 1, v, all);
-        if n % 2 == 0 {
-            v.swap(i, n - 1);
-        } else {
-            v.swap(0, n - 1);
-        }
-    }
+struct HeapPermute<T> {
+    v: Vec<T>,
+    c: Vec<usize>,
+    i: usize,
 }
 
-pub fn perm<T: Clone>(v: &Vec<T>) -> Vec<Vec<T>> {
-    let mut v = v.clone();
-    let mut all = vec![];
-    perm_part(v.len(), &mut v, &mut all);
-    all
+impl<T> HeapPermute<T> {
+    fn new(v: Vec<T>) -> Self {
+        let n = v.len();
+        Self {
+            v,
+            c: vec![0; n],
+            i: 0,
+        }
+    }
+
+    fn next(&mut self) -> Option<()> {
+        let n = self.v.len();
+        while self.i < n {
+            if self.c[self.i] < self.i {
+                if self.i % 2 == 0 {
+                    self.v.swap(0, self.i)
+                } else {
+                    self.v.swap(self.c[self.i], self.i)
+                }
+                self.c[self.i] += 1;
+                self.i = 0;
+                return Some(());
+            } else {
+                self.c[self.i] = 0;
+                self.i += 1;
+            }
+        }
+        None
+    }
 }
 
 #[test]
 fn test_perm() {
-    let v = vec![1, 2, 3];
-    let ret = [
-        [1, 2, 3],
-        [2, 1, 3],
-        [3, 2, 1],
-        [1, 3, 2],
-        [2, 3, 1],
-        [3, 1, 2],
-    ];
-    let all = perm(&v);
-    assert!((0..ret.len()).all(|i| (0..all.len()).any(|j| ret[i].to_vec() == all[j])));
-    assert_eq!(all.len(), ret.len());
+    let v: Vec<_> = (0..7).collect();
+    let mut p = HeapPermute::new(v);
+    let mut seen: Vec<Vec<usize>> = vec![];
+    while let Some(()) = p.next() {
+        for v in seen.iter() {
+            assert_ne!(v, &p.v);
+        }
+        seen.push(p.v.clone());
+    }
 }
