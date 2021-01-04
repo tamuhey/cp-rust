@@ -1,4 +1,8 @@
-use ac_library_rs::{Modulus, StaticModInt};
+use ac_library_rs::{Mod1000000007, Modulus, StaticModInt};
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref comb: CombMod::<Mod1000000007> = CombMod::new(1_000_000);
+}
 
 pub fn get_factorials<M: Modulus>(n: usize) -> Vec<StaticModInt<M>> {
     let mut facts = vec![0.into(); n];

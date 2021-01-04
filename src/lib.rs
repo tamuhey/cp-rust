@@ -19,6 +19,7 @@ pub mod matrix;
 pub mod monoid;
 pub mod permutations;
 pub mod prelude;
+pub mod reroot;
 pub mod rolling_hash;
 mod sparse_table;
 pub mod tree;
