@@ -1,6 +1,7 @@
 /// 拡張ユークリッド互除法
 /// ax + by = c
 /// verified: https://atcoder.jp/contests/acl1/submissions/16916747
+/// returns: (gcd == c, x, y)
 pub fn ext_gcd(a: u128, b: u128) -> (u128, i128, i128) {
     if b == 0 {
         return (a, 1, 0);
