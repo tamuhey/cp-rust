@@ -16,10 +16,12 @@ where
     T: Add<Output = T> + Sub<Output = T> + Copy + Zero,
 {
     fn new(tree: &'a [Vec<usize>]) -> Self {
-        Self {
+        let mut ret = Self {
             tree,
             memo: BTreeMap::new(),
-        }
+        };
+        ret.calc();
+        ret
     }
     fn calc(&mut self) {
         self.get(0, 0);

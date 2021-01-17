@@ -3,33 +3,33 @@ use num::{One, Zero};
 use std::ops::{Add, BitAnd, BitXor, Mul};
 // And Xor rig
 #[derive(Debug, Copy, Clone)]
-struct AX<T>(pub T);
+struct AndXor<T>(pub T);
 
-impl<T> Add<AX<T>> for AX<T>
+impl<T> Add<AndXor<T>> for AndXor<T>
 where
     T: BitXor<Output = T> + Copy,
 {
-    type Output = AX<T::Output>;
+    type Output = AndXor<T::Output>;
     fn add(self, rhs: Self) -> Self::Output {
         Self(self.0 ^ rhs.0)
     }
 }
-impl<T> Mul<AX<T>> for AX<T>
+impl<T> Mul<AndXor<T>> for AndXor<T>
 where
     T: BitAnd<Output = T> + Copy,
 {
-    type Output = AX<T::Output>;
+    type Output = AndXor<T::Output>;
     fn mul(self, rhs: Self) -> Self::Output {
         Self(self.0 & rhs.0)
     }
 }
-impl<T> From<T> for AX<T> {
+impl<T> From<T> for AndXor<T> {
     fn from(x: T) -> Self {
         Self(x)
     }
 }
 use std::str::FromStr;
-impl<T> FromStr for AX<T>
+impl<T> FromStr for AndXor<T>
 where
     T: FromStr,
 {
@@ -41,7 +41,7 @@ where
 }
 
 use std::fmt::Display;
-impl<T> Display for AX<T>
+impl<T> Display for AndXor<T>
 where
     T: Display,
 {
@@ -50,7 +50,7 @@ where
     }
 }
 
-impl<T> Zero for AX<T>
+impl<T> Zero for AndXor<T>
 where
     T: Zero + Copy + PartialEq + BitXor,
     Self: Add<Output = Self>,
@@ -63,11 +63,8 @@ where
     }
 }
 
-impl One for AX<usize> {
+impl One for AndXor<usize> {
     fn one() -> Self {
         Self(!0)
-    }
-    fn is_one(&self) -> bool {
-        self.0.is_one()
     }
 }
