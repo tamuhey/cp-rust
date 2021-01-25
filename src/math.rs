@@ -52,6 +52,45 @@ pub fn ceil_pow2(n: u32) -> u32 {
     32 - n.saturating_sub(1).leading_zeros()
 }
 
+fn pow_mod(x: usize, mut a: usize) -> M {
+    let mut cur = M::new(x);
+    let mut ret = M::new(1);
+    while a > 0 {
+        if a & 1 == 1 {
+            ret *= cur;
+        }
+        a >>= 1;
+        cur *= cur;
+    }
+    ret
+}
+
+// baby step giant step
+fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
+    let n = M::modulus() + 10;
+    let m = (n as f64).sqrt().ceil() as u32 + 100;
+    assert!((m as usize).pow(2) >= n as usize);
+    let table = {
+        let mut table = HashMap::new();
+        let mut cur = M::new(1);
+        for i in 0..m {
+            table.insert(cur, i);
+            cur *= g;
+        }
+        table
+    };
+
+    let mut y = M::new(h);
+    let factor = pow_mod(g, (M::modulus() - m - 1) as usize);
+    for i in 0..=m {
+        if let Some(j) = table.get(&y) {
+            return Some(i * m + j);
+        }
+        y *= factor;
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
