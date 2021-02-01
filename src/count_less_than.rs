@@ -1,5 +1,6 @@
 // verified https://atcoder.jp/contests/abc174/submissions/15650411
 // RangeTree 領域木
+use std::cmp::Ordering::Less;
 pub struct CountLessThan<T> {
     dat: Vec<Vec<T>>,
     n: usize,
