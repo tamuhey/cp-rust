@@ -6,6 +6,30 @@ use num::Zero;
 use std::collections::BTreeMap;
 use std::ops::{Add, Sub};
 
+// 子の数
+#[derive(Clone, Copy, Debug)]
+struct NumChild(usize);
+impl Sub for NumChild {
+    type Output = NumChild;
+    fn sub(self, rhs: NumChild) -> Self::Output {
+        NumChild(self.0 - rhs.0)
+    }
+}
+impl Add for NumChild {
+    type Output = NumChild;
+    fn add(self, rhs: NumChild) -> Self::Output {
+        NumChild(self.0 + rhs.0)
+    }
+}
+impl Zero for NumChild {
+    fn zero() -> Self {
+        NumChild(1)
+    }
+    fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
+}
+
 struct ReRoot<'a, T> {
     tree: &'a [Vec<usize>],
     memo: BTreeMap<(usize, usize), T>,

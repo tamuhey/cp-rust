@@ -13,6 +13,7 @@ pub mod count_less_than;
 pub mod counter;
 pub mod dijkstra;
 pub mod inversion_number;
+pub mod kmp;
 pub mod kruskal;
 pub mod lca;
 pub mod math;

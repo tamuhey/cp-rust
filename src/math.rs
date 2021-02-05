@@ -52,7 +52,8 @@ pub fn ceil_pow2(n: u32) -> u32 {
     32 - n.saturating_sub(1).leading_zeros()
 }
 
-fn pow_mod(x: usize, mut a: usize) -> M {
+use ac_library_rs::modint::ModInt1000000007 as M;
+pub fn pow_mod(x: usize, mut a: usize) -> M {
     let mut cur = M::new(x);
     let mut ret = M::new(1);
     while a > 0 {
@@ -66,7 +67,7 @@ fn pow_mod(x: usize, mut a: usize) -> M {
 }
 
 // baby step giant step
-fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
+pub fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
     let n = M::modulus() + 10;
     let m = (n as f64).sqrt().ceil() as u32 + 100;
     assert!((m as usize).pow(2) >= n as usize);
