@@ -1,4 +1,5 @@
 // sparse table: https://www.geeksforgeeks.org/sparse-table/
+// 区間の最小値をもとめる
 
 fn msb(mut n: usize) -> usize {
     let mut ret = 0;
@@ -11,17 +12,18 @@ fn msb(mut n: usize) -> usize {
 
 struct SparseTable<T> {
     table: Vec<Vec<T>>,
-    min: fn(T, T) -> T,
-    max_value: T,
 }
 
+use num::Bounded;
+use std::cmp::min;
 impl<T> SparseTable<T>
 where
-    T: Copy,
+    T: Copy + Bounded + Ord,
 {
-    fn new(a: &[T], min: fn(T, T) -> T, max_value: T) -> Self {
+    pub fn new(a: &[T]) -> Self {
         let n = a.len();
         let m = msb(n) + 1;
+        let max_value = T::max_value();
         let mut table = vec![vec![max_value; n]; m];
         table[0] = a.to_vec();
         for i in 1..m {
@@ -35,24 +37,19 @@ where
             }
         }
 
-        Self {
-            table,
-            min,
-            max_value,
-        }
+        Self { table }
     }
-    fn get(&self, l: usize, r: usize) -> T {
+    pub fn get(&self, l: usize, r: usize) -> T {
         assert!(l < r);
         let d = r - l;
         let k = msb(d);
-        (self.min)(self.table[k][l], self.table[k][r - (1 << k)])
+        min(self.table[k][l], self.table[k][r - (1 << k)])
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::cmp::min;
     #[test]
     fn new() {
         let a = vec![7, 2, 3, 0, 5];
@@ -61,7 +58,7 @@ mod tests {
             vec![2, 2, 0, 0, 5],
             vec![0, 0, 0, 0, 5],
         ];
-        let actual = SparseTable::new(&a, min, std::usize::MAX).table;
+        let actual = SparseTable::new(&a).table;
         assert_eq!(actual, expected);
     }
     #[test]
@@ -72,12 +69,12 @@ mod tests {
     #[test]
     fn get_handmade() {
         let a = vec![0, 1, 0];
-        let st = SparseTable::new(&a, min, !0);
+        let st = SparseTable::new(&a);
         assert_eq!(st.get(0, 2), 0);
     }
     #[quickcheck]
     fn get_quick(a: Vec<usize>) {
-        let st = SparseTable::new(&a, min, !0);
+        let st = SparseTable::new(&a);
         let n = a.len();
         for l in 0..n {
             for r in (l + 1)..n {

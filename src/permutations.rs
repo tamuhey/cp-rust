@@ -15,7 +15,7 @@ impl<T> HeapPermute<T> {
         }
     }
 
-    fn next(&mut self) -> Option<()> {
+    fn next(&mut self) -> bool {
         let n = self.v.len();
         while self.i < n {
             if self.c[self.i] < self.i {
@@ -26,13 +26,13 @@ impl<T> HeapPermute<T> {
                 }
                 self.c[self.i] += 1;
                 self.i = 0;
-                return Some(());
+                return true;
             } else {
                 self.c[self.i] = 0;
                 self.i += 1;
             }
         }
-        None
+        false
     }
 }
 
@@ -41,7 +41,7 @@ fn test_perm() {
     let v: Vec<_> = (0..7).collect();
     let mut p = HeapPermute::new(v);
     let mut seen: Vec<Vec<usize>> = vec![];
-    while let Some(()) = p.next() {
+    while p.next() {
         for v in seen.iter() {
             assert_ne!(v, &p.v);
         }

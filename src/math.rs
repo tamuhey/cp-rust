@@ -1,3 +1,14 @@
+fn gcd(a: usize, b: usize) -> usize {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
+fn lca(a: usize, b: usize) -> usize {
+    a * b / gcd(a, b)
+}
+
 /// 拡張ユークリッド互除法
 /// ax + by = c
 /// verified: https://atcoder.jp/contests/acl1/submissions/16916747
@@ -92,6 +103,26 @@ pub fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
     None
 }
 
+// 一般化pow
+use num::One;
+use std::ops::MulAssign;
+fn pow<T>(x: T, n: usize) -> T
+where
+    T: One + MulAssign + Copy,
+{
+    let mut n = n;
+    let mut cur: T = x;
+    let mut ret: T = One::one();
+    while n > 0 {
+        if n & 1 != 0 {
+            ret *= cur;
+        }
+        cur = cur * cur;
+        n >>= 1;
+    }
+    ret
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -104,5 +135,14 @@ mod tests {
         assert_eq!(num_divs(&factor(6)), 4);
         assert_eq!(num_divs(&factor(57)), 4);
         assert_eq!(num_divs(&factor(60)), 12);
+    }
+
+    #[quickcheck]
+    fn test_pow(x: f64, y: i32) -> bool {
+        if x.is_nan() || y < 0 {
+            true
+        } else {
+            x.powi(y) == pow(x, y as usize)
+        }
     }
 }
