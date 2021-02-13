@@ -105,17 +105,17 @@ pub fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
 
 // 一般化pow
 use num::One;
-use std::ops::MulAssign;
-fn pow<T>(x: T, n: usize) -> T
+use std::ops::Mul;
+fn pow<T>(x: T, n: usize) -> T::Output
 where
-    T: One + MulAssign + Copy,
+    T: One + Mul + Copy,
 {
     let mut n = n;
     let mut cur: T = x;
     let mut ret: T = One::one();
     while n > 0 {
         if n & 1 != 0 {
-            ret *= cur;
+            ret = ret * cur;
         }
         cur = cur * cur;
         n >>= 1;

@@ -2,6 +2,8 @@
 use num::{One, Zero};
 use std::ops::{Add, Mul};
 
+struct Matrix<T>(Vec<Vec<T>>);
+
 fn idmat<T>(n: usize) -> Vec<Vec<T>>
 where
     T: One + Zero + Clone,
