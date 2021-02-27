@@ -146,3 +146,65 @@ mod tests {
         }
     }
 }
+
+use ac_library_rs::math::inv_mod;
+/// ax = b (mod m)
+/// returns (x, m)
+pub fn linear_congruence_one(a: i64, b: i64, m: i64) -> Option<(i64, i64)> {
+    fn gcd(a: i64, b: i64) -> i64 {
+        if b == 0 {
+            a
+        } else {
+            gcd(b, a % b)
+        }
+    }
+    let d = gcd(a, m);
+    if b % d != 0 {
+        return None;
+    }
+    let md = m / d;
+    let x = (b / d) % md;
+    let y = inv_mod(a / d, md) % md;
+    Some(((x * y) % md, md))
+}
+
+#[test]
+fn test_linear_congruence_one() {
+    assert_eq!(linear_congruence_one(3, 4, 5), Some((3, 5)));
+    assert_eq!(linear_congruence_one(2, 4, 6), Some((2, 3)));
+    assert_eq!(linear_congruence_one(3, 4, 6), None);
+}
+pub fn linear_congruence(av: &[i64], bv: &[i64], mv: &[i64]) -> Option<(i64, i64)> {
+    let mut x = 0;
+    let mut m = 1;
+    for i in 0..av.len() {
+        let a = av[i] * m;
+        let b = bv[i] - av[i] * x;
+        if let Some((t, md)) = linear_congruence_one(a, b, mv[i]) {
+            x += m * t;
+            m *= md;
+            x %= m;
+        } else {
+            return None;
+        }
+    }
+    x %= m;
+    if x < 0 {
+        x += m
+    };
+    Some((x, m))
+}
+
+#[cfg(test)]
+#[quickcheck]
+fn test_linear_congruence(a: u32, b: u32, m: u32) {
+    let a = (a / 3) as i64;
+    let b = (b / 3) as i64;
+    let m = (m / 3) as i64;
+    if m == 0 || a == 0 {
+        return;
+    }
+    let x = linear_congruence_one(a, b, m);
+    let y = linear_congruence(&[a], &[b], &[m]);
+    assert_eq!(x, y, "case: {:?}", (a, b, m))
+}
