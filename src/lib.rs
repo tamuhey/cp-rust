@@ -24,5 +24,6 @@ pub mod prelude;
 pub mod reroot;
 pub mod rolling_hash;
 pub mod sparse_table;
+pub mod toposort;
 pub mod tree;
 pub mod union_find;
