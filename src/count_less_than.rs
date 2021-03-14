@@ -1,6 +1,6 @@
 // verified https://atcoder.jp/contests/abc174/submissions/15650411
 // RangeTree 領域木
-use std::cmp::Ordering::Less;
+use std::cmp::Ordering::{Equal, Less};
 pub struct CountLessThan<T> {
     dat: Vec<Vec<T>>,
     n: usize,
@@ -20,7 +20,7 @@ impl<T: Ord + Copy> CountLessThan<T> {
             dat[k].append(&mut tmp);
             dat[k].sort();
         }
-        Self { dat: dat, n: n }
+        Self { dat, n }
     }
     pub fn get(&self, l: usize, r: usize, query: T) -> usize {
         let mut l = l + self.n;

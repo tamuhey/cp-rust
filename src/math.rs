@@ -1,3 +1,23 @@
+fn get_prime_table(n: usize) -> Vec<bool> {
+    let mut ret = vec![true; n];
+    ret[0] = false;
+    ret[1] = false;
+    for i in 2..n {
+        if !ret[i] {
+            continue;
+        }
+        for j in (i + i..n).step_by(i) {
+            ret[j] = false
+        }
+    }
+    ret
+}
+
+fn get_primes(lim: usize) -> Vec<usize> {
+    let tb = get_prime_table(lim);
+    (2..=lim).filter(|&i| tb[i]).collect()
+}
+
 fn gcd(a: usize, b: usize) -> usize {
     if b == 0 {
         a
