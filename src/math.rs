@@ -14,7 +14,7 @@ fn get_prime_table(n: usize) -> Vec<bool> {
 }
 
 fn get_primes(lim: usize) -> Vec<usize> {
-    let tb = get_prime_table(lim);
+    let tb = get_prime_table(lim + 1);
     (2..=lim).filter(|&i| tb[i]).collect()
 }
 
