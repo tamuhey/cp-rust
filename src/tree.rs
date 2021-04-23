@@ -4,7 +4,7 @@ fn tree_diameter(g: &[Vec<usize>]) -> (usize, usize, usize) {
     fn f(s: usize, g: &[Vec<usize>]) -> (usize, usize) {
         let n = g.len();
         let mut q = VecDeque::new();
-        q.push_back((n, s, 1));
+        q.push_back((n, s, 0));
         while let Some((p, u, d)) = q.pop_front() {
             for &v in g[u].iter() {
                 if v != p {

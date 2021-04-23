@@ -1,3 +1,39 @@
+use num::{Bounded, CheckedMul, One, Unsigned};
+
+fn sqrt_floor<T>(x: T) -> T
+where
+    T: Unsigned + One + Bounded + From<u8> + Div + Ord + Add + CheckedMul + Copy,
+{
+    if x.is_zero() {
+        return T::zero();
+    }
+    let one: T = T::one();
+    let two: T = 2u8.into();
+    let mut ok = T::zero();
+    let mut ng = T::max_value() / two;
+    while (ng - ok) > one {
+        let m = (ok + ng) / two;
+        if let Some(y) = m.checked_mul(&m) {
+            if y <= x {
+                ok = m;
+                continue;
+            }
+        }
+        ng = m
+    }
+    return ok;
+}
+
+#[cfg(test)]
+#[quickcheck]
+fn test_sqrt_floor_quick(x: usize) {
+    let ret = sqrt_floor(x);
+    assert!(ret.saturating_mul(ret) <= x);
+    if x < !0usize {
+        assert!((ret + 1).saturating_mul(ret + 1) > x);
+    }
+}
+
 fn get_prime_table(n: usize) -> Vec<bool> {
     let mut ret = vec![true; n];
     ret[0] = false;
@@ -42,7 +78,10 @@ pub fn ext_gcd(a: u128, b: u128) -> (u128, i128, i128) {
     (d, x, y - ((a / b) as i128) * x)
 }
 
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    ops::{Add, Div},
+};
 pub fn factor(mut n: usize) -> HashMap<usize, usize> {
     let mut ret = std::collections::HashMap::new();
     let n0 = n;
@@ -97,7 +136,8 @@ pub fn pow_mod(x: usize, mut a: usize) -> M {
     ret
 }
 
-// baby step giant step
+/// baby step giant step
+/// returns `ret` such that `g ^ ret % p == h`
 pub fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
     let n = M::modulus() + 10;
     let m = (n as f64).sqrt().ceil() as u32 + 100;
@@ -124,7 +164,7 @@ pub fn baby_step_giant_step(g: usize, h: usize) -> Option<u32> {
 }
 
 // 一般化pow
-use num::One;
+// use num::One;
 use std::ops::Mul;
 fn pow<T>(x: T, n: usize) -> T::Output
 where
