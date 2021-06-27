@@ -60,10 +60,7 @@ impl<M: Modulus> CombMod<M> {
     pub fn new(n: usize) -> Self {
         let facts = get_factorials(n);
         let invs = get_facinvs(n, &facts);
-        CombMod {
-            facts: facts,
-            invs: invs,
-        }
+        CombMod { facts, invs }
     }
     pub fn c(&self, a: usize, b: usize) -> StaticModInt<M> {
         if a < b {
@@ -77,6 +74,13 @@ impl<M: Modulus> CombMod<M> {
             0.into()
         } else {
             self.facts[a] * self.invs[a - b]
+        }
+    }
+    pub fn h(&self, a: usize, b: usize) -> StaticModInt<M> {
+        if a + b == 0 {
+            0.into()
+        } else {
+            self.c(a + b - 1, b)
         }
     }
 }

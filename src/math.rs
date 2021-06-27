@@ -82,6 +82,7 @@ use std::{
     collections::HashMap,
     ops::{Add, Div},
 };
+
 pub fn factor(mut n: usize) -> HashMap<usize, usize> {
     let mut ret = std::collections::HashMap::new();
     let n0 = n;
